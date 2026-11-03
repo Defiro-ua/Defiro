@@ -1,0 +1,484 @@
+@import 'tailwindcss';
+
+/*
+ * defiro design tokens, taken from the design system bundled with the mockup
+ * (project/ds/defiro/tokens.json). Components only use these tokens; the
+ * default Tailwind palettes, radii, shadows and type scale are cleared so that
+ * nothing outside the system can be used by accident.
+ */
+@theme {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  /* Text on solid status fills (success badge, danger button) and on the dark header strip */
+  --color-on-status: #ffffff;
+  --color-on-dark: #fffdfa;
+
+  /* Surfaces */
+  --color-bg: #fffdfa;
+  --color-soft: #fcf3dc;
+  --color-panel: #ffffff;
+  --color-soft-hover: #fef8ea;
+  --color-selected: #f8ebcb;
+  --color-tint: #fefaf0;
+
+  /* Lines */
+  --color-line: #f0e6cc;
+  --color-line-strong: #e2d3ad;
+  --color-line-muted: #c9bd9f;
+  --color-field: #8c8170;
+
+  /* Text */
+  --color-ink: #17130e;
+  --color-ink-2: #453f37;
+  --color-ink-3: #6e675d;
+
+  /* Brand */
+  --color-orange: #da6202;
+  --color-yellow: #e7a718;
+  /* Ends of the brand gradient (primary buttons, active items) */
+  --color-brand-from: #e7a718;
+  --color-brand-to: #da6202;
+  --color-accent-ink: #a64b00;
+  --color-accent-soft: #fbefe3;
+  --color-on-brand: #17130e;
+  --color-highlight: #f6dc98;
+
+  /* Status */
+  --color-success: #1f6b3f;
+  --color-success-soft: #e2f2e7;
+  --color-success-tint: #f4fbf6;
+  --color-error: #a1251b;
+  --color-error-soft: #fce4e0;
+  --color-warning: #7a4f00;
+  --color-warning-soft: #fcebc0;
+  --color-info: #245a86;
+  --color-info-soft: #e2eef8;
+  /* "Changed" markers in version comparisons */
+  --color-changed: #b07800;
+  --color-changed-soft: #fffaf0;
+
+  /* Placeholder pill ("Demonstração") */
+  --color-ph-bg: #fff6d6;
+  --color-ph-ink: #7a5a00;
+  --color-ph-line: #d9b64a;
+
+  /* Footer */
+  --color-footer: #17130e;
+  --color-footer-ink: #d2cbbf;
+  --color-footer-dim: #9b9387;
+
+  --color-scrim: rgb(23 19 14 / 0.45);
+
+  /* Typography */
+  --font-*: initial;
+  --font-sans: Poppins, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-legible: 'Atkinson Hyperlegible', Poppins, system-ui, sans-serif;
+  --font-dyslexia: Lexend, Poppins, system-ui, sans-serif;
+
+  --text-*: initial;
+  /* Fluid like the site's hero: 40px on phones up to 76px at 1440px */
+  --text-hero: clamp(40px, 5.3vw, 76px);
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.035em;
+  --text-hero--font-weight: 800;
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 38px;
+  --text-headline-lg--letter-spacing: -0.03em;
+  --text-headline-lg--font-weight: 800;
+  --text-stat: 32px;
+  --text-stat--line-height: 36px;
+  --text-stat--letter-spacing: -0.03em;
+  --text-stat--font-weight: 800;
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 30px;
+  --text-headline-md--letter-spacing: -0.02em;
+  --text-headline-md--font-weight: 800;
+  --text-heading: 24px;
+  --text-heading--line-height: 30px;
+  --text-heading--letter-spacing: -0.01em;
+  --text-heading--font-weight: 600;
+  --text-lede: 20px;
+  --text-lede--line-height: 1.65;
+  --text-title-lg: 20px;
+  --text-title-lg--line-height: 28px;
+  --text-title-lg--letter-spacing: -0.01em;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 29px;
+  --text-title-sm: 18px;
+  --text-title-sm--line-height: 26px;
+  --text-search: 17px;
+  --text-search--line-height: 24px;
+  --text-title-md: 16px;
+  --text-title-md--line-height: 24px;
+  --text-body-md: 16px;
+  --text-body-md--line-height: 26px;
+  --text-body: 15px;
+  --text-body--line-height: 22px;
+  --text-label-md: 15px;
+  --text-label-md--line-height: 20px;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 21px;
+  --text-label-sm: 13px;
+  --text-label-sm--line-height: 18px;
+  --text-caption: 12px;
+  --text-caption--line-height: 17px;
+  --text-micro: 11px;
+  --text-micro--line-height: 16px;
+  --text-doc: 9px;
+  --text-doc--line-height: 13px;
+
+  --tracking-*: initial;
+  --tracking-title: -0.01em;
+  --tracking-heading: -0.02em;
+  --tracking-headline: -0.03em;
+  --tracking-display: -0.035em;
+
+  /* Radii */
+  --radius-*: initial;
+  --radius-xs: 4px;
+  --radius-doc: 6px;
+  --radius-sm: 8px;
+  --radius-tile: 10px;
+  --radius-md: 12px;
+  --radius-item: 14px;
+  --radius-lg: 16px;
+  --radius-menu: 22px;
+  --radius-sheet: 26px;
+  --radius-pill: 999px;
+  --radius-full: 9999px;
+
+  /* Shadows: tinted with brand orange, never black */
+  --shadow-*: initial;
+  --shadow-island: 0 10px 28px -14px rgb(166 75 0 / 0.35);
+  --shadow-menu: 0 16px 36px -14px rgb(166 75 0 / 0.35);
+  --shadow-primary: 0 8px 24px -10px rgb(218 98 2 / 0.6);
+  --shadow-embed: 0 24px 56px -28px rgb(166 75 0 / 0.35);
+  --shadow-modal: 0 16px 48px rgb(23 19 14 / 0.18);
+  --shadow-focus-field: 0 0 0 4px rgb(218 98 2 / 0.18);
+  --shadow-halo-now: 0 0 0 6px rgb(218 98 2 / 0.28);
+  --shadow-halo-sm: 0 0 0 4px rgb(218 98 2 / 0.28);
+  --shadow-halo-warning: 0 0 0 4px rgb(231 167 24 / 0.3);
+  --shadow-a11y: 0 10px 28px -8px rgb(23 19 14 / 0.55), 0 0 0 1px var(--color-line-strong);
+  --shadow-sheet-left: -24px 0 60px -24px rgb(23 19 14 / 0.45);
+
+  /* Layout widths */
+  --container-hero: 940px; /* 700px of text + 120px side padding */
+  --container-reading: 760px;
+  --container-narrow: 960px;
+  --container-submit: 1120px;
+  --container-rules: 1180px;
+  --container-content: 1200px;
+  --container-detail: 1280px;
+  --container-field: 520px;
+  --container-dialog-xs: 480px;
+  --container-dialog-sm: 520px;
+  --container-dialog-md: 560px;
+  --container-dialog-lg: 580px;
+  --container-dialog-xl: 640px;
+  --container-prose-xs: 40ch;
+  --container-prose-sm: 44ch;
+  --container-prose-md: 46ch;
+  --container-prose-lg: 62ch;
+  --container-prose-xl: 72ch;
+  --container-prose-2xl: 80ch;
+
+  --animate-spin: spin 0.9s linear infinite;
+  --animate-slide-in: slide-in 0.22s ease-out;
+  --animate-toast: toast-in 0.28s ease-out;
+
+  @keyframes slide-in {
+    from {
+      transform: translateX(48px);
+      opacity: 0;
+    }
+  }
+  @keyframes toast-in {
+    from {
+      transform: translateY(-14px);
+      opacity: 0;
+    }
+  }
+}
+
+/* Colour-blind modes: elements that must not rely on colour alone show extra marks */
+@custom-variant dalt (&:where([data-a11y~='dalt'] *));
+
+/* Brand gradients (sunflower to orange) */
+@utility bg-brand {
+  background-image: linear-gradient(135deg, var(--color-brand-from) 0%, var(--color-brand-to) 100%);
+}
+@utility bg-brand-x {
+  background-image: linear-gradient(90deg, var(--color-yellow) 0%, var(--color-orange) 100%);
+}
+@utility bg-brand-bar {
+  background-image: linear-gradient(180deg, var(--color-yellow) 0%, var(--color-orange) 100%);
+}
+/* The floating top bar: gradient hairline around a solid fill */
+@utility border-brand {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
+    linear-gradient(135deg, rgb(231 167 24 / 0.6) 0%, rgb(218 98 2 / 0.6) 100%) border-box;
+}
+/* 1.5px outline used for emphasised controls (selected cards, accent buttons) */
+@utility border-emph {
+  border-width: 1.5px;
+}
+/* Term/description pairs: label column sized to content */
+@utility grid-cols-label {
+  grid-template-columns: auto 1fr;
+}
+/* Dialogs and popovers keep a 16px gutter on phones */
+@utility w-dialog {
+  width: calc(100% - 2rem);
+}
+@utility max-w-screen-gutter {
+  max-width: calc(100vw - 2rem);
+}
+/* Dotted canvas behind the workflow designer */
+@utility bg-dots {
+  background-color: var(--color-tint);
+  background-image: radial-gradient(var(--color-line-strong) 1px, transparent 1.2px);
+  background-size: 20px 20px;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: var(--color-accent-ink);
+  }
+  a:hover {
+    color: var(--color-ink);
+  }
+
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  label:has(> input[type='radio']),
+  label:has(> input[type='checkbox']) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-orange);
+    outline-offset: 2px;
+  }
+
+  input,
+  select,
+  textarea {
+    color: var(--color-ink);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-ink-3);
+  }
+
+  dialog::backdrop {
+    background: var(--color-scrim);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/*
+ * Accessibility menu. Palettes replace the colour tokens; contrast and dark
+ * replace everything, colour-blind modes only the accent and status colours.
+ * Values are those of the mockup's accessibility component.
+ */
+html[data-cor='contraste'] {
+  --color-bg: #ffffff;
+  --color-panel: #ffffff;
+  --color-soft: #ffffff;
+  --color-tint: #ffffff;
+  --color-soft-hover: #fff3b0;
+  --color-selected: #fff3b0;
+  --color-accent-soft: #fff3b0;
+  --color-highlight: #fff3b0;
+  --color-line: #000000;
+  --color-line-strong: #000000;
+  --color-line-muted: #000000;
+  --color-field: #000000;
+  --color-ink: #000000;
+  --color-ink-2: #000000;
+  --color-ink-3: #1a1a1a;
+  --color-orange: #000000;
+  --color-yellow: #000000;
+  --color-brand-from: #000000;
+  --color-brand-to: #000000;
+  --color-on-brand: #ffffff;
+  --color-accent-ink: #0000b4;
+  --color-success: #005a1f;
+  --color-success-soft: #ffffff;
+  --color-success-tint: #ffffff;
+  --color-warning: #5c3d00;
+  --color-warning-soft: #ffffff;
+  --color-error: #a00000;
+  --color-error-soft: #ffffff;
+  --color-info: #00338c;
+  --color-info-soft: #ffffff;
+  --color-changed: #5c3d00;
+  --color-changed-soft: #ffffff;
+  --color-footer: #000000;
+  --color-on-dark: #ffffff;
+}
+
+html[data-cor='escuro'] {
+  color-scheme: dark;
+  --color-bg: #000000;
+  --color-panel: #0b0b0b;
+  --color-soft: #161616;
+  --color-tint: #0b0b0b;
+  --color-soft-hover: #262000;
+  --color-selected: #332b00;
+  --color-accent-soft: #332b00;
+  --color-highlight: #262000;
+  --color-line: #8a8a8a;
+  --color-line-strong: #ffffff;
+  --color-line-muted: #8a8a8a;
+  --color-field: #ffffff;
+  --color-ink: #ffffff;
+  --color-ink-2: #ffffff;
+  --color-ink-3: #e0e0e0;
+  --color-orange: #ffd400;
+  --color-yellow: #ffd400;
+  --color-brand-from: #ffd400;
+  --color-brand-to: #ffd400;
+  --color-on-brand: #000000;
+  --color-accent-ink: #ffe066;
+  --color-success: #7dffa0;
+  --color-success-soft: #002b10;
+  --color-success-tint: #002b10;
+  --color-warning: #ffd400;
+  --color-warning-soft: #2b2300;
+  --color-error: #ff9a8f;
+  --color-error-soft: #330a06;
+  --color-info: #9fd0ff;
+  --color-info-soft: #001f3d;
+  --color-changed: #ffd400;
+  --color-changed-soft: #2b2300;
+  --color-footer: #000000;
+  --color-on-dark: #ffffff;
+  --color-on-status: #000000;
+  --color-scrim: rgb(0 0 0 / 0.7);
+}
+
+html[data-cor='vermelho-verde'] {
+  --color-orange: #0a62b0;
+  --color-yellow: #56b4e9;
+  --color-brand-from: #1f73c4;
+  --color-brand-to: #0a55a0;
+  --color-on-brand: #ffffff;
+  --color-accent-ink: #0a55a0;
+  --color-selected: #e3eefa;
+  --color-accent-soft: #e3eefa;
+  --color-soft-hover: #eef5fd;
+  --color-success: #0a55a0;
+  --color-success-soft: #e3eefa;
+  --color-info: #5b3a8c;
+  --color-info-soft: #efe7f8;
+  --color-warning: #5f4b00;
+  --color-warning-soft: #fbf0b5;
+  --color-error: #a33f00;
+  --color-error-soft: #fde6d6;
+}
+
+html[data-cor='azul-amarelo'] {
+  --color-orange: #b8134f;
+  --color-yellow: #e8789f;
+  --color-brand-from: #d0336f;
+  --color-brand-to: #a10f45;
+  --color-on-brand: #ffffff;
+  --color-accent-ink: #a10f45;
+  --color-selected: #fbe6ee;
+  --color-accent-soft: #fbe6ee;
+  --color-soft-hover: #fdf0f4;
+  --color-info: #7a2a5c;
+  --color-info-soft: #f7e6f0;
+  --color-warning: #8a3f00;
+  --color-warning-soft: #ffe2cc;
+  --color-error: #a1251b;
+  --color-error-soft: #fde3e1;
+}
+
+/* With every fill turned white or black, chips keep a visible outline */
+html[data-cor='contraste'] [data-chip],
+html[data-cor='escuro'] [data-chip] {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+[data-a11y~='esp1'] * {
+  letter-spacing: 0.04em !important;
+  word-spacing: 0.08em !important;
+}
+[data-a11y~='esp2'] * {
+  letter-spacing: 0.08em !important;
+  word-spacing: 0.14em !important;
+}
+[data-a11y~='esp3'] * {
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+}
+[data-a11y~='lh1'] * {
+  line-height: 1.6 !important;
+}
+[data-a11y~='lh2'] * {
+  line-height: 1.8 !important;
+}
+[data-a11y~='lh3'] * {
+  line-height: 2 !important;
+}
+[data-a11y~='links'] a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 3px !important;
+  outline: 2px dashed var(--color-orange);
+  outline-offset: 2px;
+}
+[data-a11y~='dalt'] a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+[data-a11y~='fonte-legivel'],
+[data-a11y~='fonte-legivel'] * {
+  font-family: var(--font-legible) !important;
+}
+[data-a11y~='fonte-dislexia'],
+[data-a11y~='fonte-dislexia'] * {
+  font-family: var(--font-dyslexia) !important;
+}
+[data-a11y~='foco'] :focus-visible {
+  outline: 5px solid var(--color-ink) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 11px #ffd400 !important;
+}
+[data-a11y~='pausa'] *,
+[data-a11y~='pausa'] *::before,
+[data-a11y~='pausa'] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+[data-a11y~='sat-baixa'] {
+  filter: saturate(0.4);
+}
+[data-a11y~='sat-alta'] {
+  filter: saturate(1.8);
+}
+[data-a11y~='sat-cinza'] {
+  filter: grayscale(1);
+}
