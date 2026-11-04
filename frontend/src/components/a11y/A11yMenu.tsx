@@ -11,6 +11,7 @@ import {
 } from '../../lib/a11y'
 import { useA11y } from '../../lib/a11yContext'
 import { cx } from '../../lib/cx'
+import { useFeedback } from '../../state/feedbackContext'
 import { Button } from '../Button'
 import { Icon, type IconName } from '../Icon'
 
@@ -57,7 +58,7 @@ export function A11yMenu() {
   const [open, setOpen] = useState(false)
   const [profilesOpen, setProfilesOpen] = useState(false)
   const [headings, setHeadings] = useState<Heading[] | null>(null)
-  const [toast, setToast] = useState('')
+  const feedback = useFeedback()
   const rootRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
@@ -69,11 +70,6 @@ export function A11yMenu() {
   useEffect(() => {
     if (headings) structureTitleRef.current?.focus()
   }, [headings])
-  useEffect(() => {
-    if (!toast) return
-    const timer = window.setTimeout(() => setToast(''), 6000)
-    return () => window.clearTimeout(timer)
-  }, [toast])
 
   const active = countActive(settings)
   const activeProfiles = profiles.filter((p) => isProfileOn(settings, p.settings)).length
@@ -295,10 +291,10 @@ export function A11yMenu() {
             <Button
               variant="secondary"
               icon="reset"
-              block
+              className="w-full"
               onClick={() => {
                 reset()
-                setToast('Definições repostas')
+                feedback('Definições repostas')
               }}
             >
               Repor todas as definições
@@ -314,7 +310,7 @@ export function A11yMenu() {
         onClick={() => (open ? close() : setOpen(true))}
         aria-expanded={open}
         aria-controls="painel-acessibilidade"
-        className="fixed bottom-6 left-6 z-40 grid size-16 place-items-center rounded-full border-3 border-bg bg-ink text-bg shadow-a11y"
+        className="fixed bottom-6 left-6 z-40 grid size-16 place-items-center rounded-full border-3 border-bg bg-a11y-btn text-a11y-btn-ink shadow-a11y"
       >
         <Icon name="accessibility" size={32} />
         <span className="sr-only">
@@ -330,17 +326,6 @@ export function A11yMenu() {
           </span>
         )}
       </button>
-
-      <div role="status" aria-live="polite">
-        {toast && (
-          <p className="fixed inset-x-0 top-4 z-50 mx-auto flex w-max max-w-screen-gutter animate-toast items-center gap-3 rounded-lg border border-line-strong bg-panel py-2.5 pr-4.5 pl-3 text-label-md leading-5.5 font-semibold text-ink shadow-menu">
-            <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full bg-success text-bg">
-              <Icon name="check" size={16} />
-            </span>
-            {toast}
-          </p>
-        )}
-      </div>
     </div>
   )
 }

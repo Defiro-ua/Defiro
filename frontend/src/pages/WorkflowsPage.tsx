@@ -1,137 +1,240 @@
-import { Link } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
 import { Button } from '../components/Button'
 import { Chip } from '../components/Chip'
-import { IconTile } from '../components/IconTile'
-import { AppLayout } from '../components/layout/AppLayout'
-import { PageTitle } from '../components/PageTitle'
-import { Panel } from '../components/Panel'
-import { SectionTitle } from '../components/SectionTitle'
-import { HeadRow, TableFrame, Td, Th, Tr } from '../components/Table'
-import { workflowRows, type WorkflowRow } from '../data/workflows'
+import { Flash } from '../components/Flash'
+import { Icon } from '../components/Icon'
+import { AppShell } from '../components/layout/AppShell'
+import { withRole } from '../domain/people'
+import type { PersonaId, Workflow } from '../domain/types'
+import { fieldsAC, reasonsAC, stepTypes, totalDays } from '../domain/workflows'
 import { cx } from '../lib/cx'
+import { useFlash } from '../lib/useFlash'
+import { useFocusOnArrival } from '../lib/useFocusOnArrival'
 import { paths } from '../routes'
+import { useDemo, type NavState } from '../state/demoContext'
 
-const rowAction = 'inline-flex min-h-11 items-center px-3 text-body-sm font-semibold'
+const facts = (w: Workflow) => [
+  { rot: 'Passos', v: String(w.passos.length) },
+  { rot: 'Prazo total', v: totalDays(w) + ' dias úteis' },
+  { rot: 'Disponível para', v: w.passos[0]?.quem || '—' },
+]
 
-const actionLink: Record<WorkflowRow['actions'][number], { label: string; to: string }> = {
-  edit: { label: 'Editar', to: paths.designer },
-  continue: { label: 'Continuar', to: paths.designer },
-  versions: { label: 'Versões', to: paths.versions },
-}
+/** E12 · Workflows (UC03): each workflow opens its summary in place */
+export function WorkflowsPage({ persona }: { persona: PersonaId }) {
+  const { wfs } = useDemo()
+  const location = useLocation()
+  const [flash, closeFlash] = useFlash()
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  // back from a workflow: its summary opens again and its name gets the focus
+  const back = (location.state as NavState | null)?.abrir
+  useFocusOnArrival(headingRef, !back)
+  // new workflows start open, so the person sees what was just created
+  const [open, setOpen] = useState<Record<string, boolean>>(() => (back ? { [back]: true } : {}))
+  const isOpen = (w: Workflow) => (open[w.id] !== undefined ? open[w.id] : !!w.novo)
+  useEffect(() => {
+    if (back) document.getElementById('wfb-' + back)?.focus()
+  }, [back])
 
-/** E12 · Workflows (UC03, UC07, UC11, UC26) */
-export function WorkflowsPage() {
+  const list = wfs.slice().reverse()
   return (
-    <AppLayout user="sofia" nav={{ active: 'workflows', inboxCount: 0 }} width="full">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-3">
-          <PageTitle accent>Workflows</PageTitle>
-          <p className="text-body-lg text-ink-2">
-            Os procedimentos da Câmara, desenhados no designer e aprovados pela chefia antes de entrarem em vigor.
-          </p>
+    <AppShell persona={persona} active="workflows" mainClassName="max-w-list gap-7">
+      <Flash notice={flash} onClose={closeFlash} />
+      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div className="flex flex-[1_1_420px] flex-col gap-2.5">
+          <h1 ref={headingRef} tabIndex={-1} className="m-0 text-headline-lg outline-none">
+            Work<span className="text-orange">flows</span>
+          </h1>
+          <p className="m-0 max-w-[60ch] text-body-lg text-ink-2">Os procedimentos disponíveis. Escolha um para ver o resumo.</p>
         </div>
-        <Button to={paths.designer} icon="plus" glow>
-          Criar workflow
-        </Button>
       </header>
 
-      <TableFrame panel>
-        <table className="w-full min-w-225 border-collapse text-body">
-          <thead>
-            <HeadRow>
-              <Th pad="edge">Nome</Th>
-              <Th pad="roomy">Versão e estado</Th>
-              <Th pad="roomy">Regras de negócio</Th>
-              <Th pad="roomy">Quem pode iniciar</Th>
-              <Th pad="roomy">Última alteração</Th>
-              <Th pad="edge" align="right">
-                Ações
-              </Th>
-            </HeadRow>
-          </thead>
-          <tbody>
-            {workflowRows.map((row) => (
-              <Tr key={row.name}>
-                <Td pad="edge">
-                  <span className="flex items-center gap-3">
-                    <IconTile icon={row.icon} size="md" tone={row.inactive ? 'muted' : 'soft'} />
-                    <span className={cx('font-semibold', row.inactive && 'text-ink-2')}>{row.name}</span>
-                  </span>
-                </Td>
-                <Td pad="roomy">
-                  <span className="flex flex-col items-start gap-1.5">
-                    {row.versions.map((version) => (
-                      <span key={version.label} className="flex flex-col gap-1">
-                        <Chip tone={version.tone} dot>
-                          {version.label}
-                        </Chip>
-                        {version.note && <span className="text-caption text-ink-3">{version.note}</span>}
-                      </span>
-                    ))}
-                  </span>
-                </Td>
-                <Td pad="roomy">
-                  {row.rules.length === 0 ? (
-                    <span className="text-label-sm text-ink-3">—</span>
-                  ) : (
-                    <span className="flex flex-wrap gap-1">
-                      {row.rules.map((rule) => (
-                        <Link
-                          key={rule}
-                          to={paths.rules}
-                          className="inline-flex min-h-7 items-center rounded-pill bg-soft px-2.5 text-label-sm font-semibold whitespace-nowrap text-warning hover:text-ink"
-                        >
-                          {rule}
-                        </Link>
-                      ))}
+      <section aria-labelledby="titulo-lista" className="flex flex-col gap-3.5">
+        <h2 id="titulo-lista" className="m-0 text-title-lg font-semibold">
+          Workflows · {wfs.length}
+        </h2>
+        <ul className="m-0 list-none overflow-hidden rounded-item border border-line bg-panel p-0">
+          {list.map((w, i) => {
+            const on = isOpen(w)
+            return (
+              <li key={w.id} className={cx('m-0', i > 0 && 'border-t border-line', on && 'bg-tint')}>
+                <h3 className="m-0 text-[length:inherit] font-[inherit]">
+                  <button
+                    type="button"
+                    id={'wfb-' + w.id}
+                    aria-expanded={on}
+                    aria-controls={'wfp-' + w.id}
+                    onClick={() => setOpen((o) => ({ ...o, [w.id]: !on }))}
+                    className="focus-inside box-border flex min-h-18 w-full cursor-pointer items-center gap-3.5 border-0 bg-transparent px-5 py-3 text-left font-sans text-ink"
+                  >
+                    <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-md bg-soft text-accent-ink">
+                      <Icon name="workflow" size={22} />
                     </span>
-                  )}
-                </Td>
-                <Td pad="roomy" className={row.starters === '—' ? 'text-ink-3' : 'text-ink-2'}>
-                  {row.starters}
-                </Td>
-                <Td pad="roomy" className="text-body-sm text-ink-2">
-                  {row.changedBy}
-                  <br />
-                  <span className="text-ink-3">{row.changedAt}</span>
-                </Td>
-                <Td align="right" pad="actions" className="whitespace-nowrap">
-                  {row.actions.map((action) => (
-                    <Link
-                      key={action}
-                      to={actionLink[action].to}
-                      aria-label={`${actionLink[action].label}: ${row.name}`}
-                      className={rowAction}
-                    >
-                      {actionLink[action].label}
-                    </Link>
-                  ))}
-                </Td>
-              </Tr>
-            ))}
-          </tbody>
-        </table>
-      </TableFrame>
+                    <span className="min-w-0 flex-1 text-title-sm font-semibold">{w.nome}</span>
+                    {w.novo && (
+                      <Chip tone="info" icon="plus">
+                        Novo
+                      </Chip>
+                    )}
+                    <Icon name={on ? 'chevronUp' : 'chevronDown'} size={22} className="text-ink-2" />
+                  </button>
+                </h3>
+                {on && (
+                  <div id={'wfp-' + w.id} role="region" aria-labelledby={'wfb-' + w.id} className="flex flex-col gap-4 pt-1 pr-5 pb-5.5 pl-5 sm:pl-19.5">
+                    <p className="m-0 text-[16px] leading-[25px] text-ink-2">{w.desc || 'Sem descrição.'}</p>
+                    <dl className="m-0 flex flex-wrap gap-2.5">
+                      {facts(w).map((f) => (
+                        <div key={f.rot} className="edge flex flex-[1_1_150px] flex-col gap-0.5 rounded-md bg-soft px-3.5 py-2.5">
+                          <dt className="text-label-sm leading-[18px] text-ink-2">{f.rot}</dt>
+                          <dd className="m-0 text-[15px] leading-[22px] font-semibold">{f.v}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <ol aria-label={'Passos de ' + w.nome} className="m-0 flex list-none flex-wrap items-center gap-x-1 gap-y-1.5 p-0 text-[14px] leading-5">
+                      {w.passos.map((x, j) => (
+                        <li key={x.id} className="inline-flex items-center gap-1">
+                          <span className="rounded-pill border border-line-strong bg-bg px-2.5 py-1">
+                            {j + 1}. {x.nome}
+                          </span>
+                          {j < w.passos.length - 1 && <Icon name="arrowRight" size={14} className="text-ink-3" />}
+                        </li>
+                      ))}
+                    </ol>
+                    <Button to={paths.workflow(w.id)} variant="secondary" icon="eye" className="self-start">
+                      Ver o workflow completo<span className="sr-only">: {w.nome}</span>
+                    </Button>
+                  </div>
+                )}
+              </li>
+            )
+          })}
+        </ul>
+      </section>
+    </AppShell>
+  )
+}
 
-      <Panel variant="soft" padding="none" aria-labelledby="como-termina" className="flex flex-col gap-3 px-6 py-5">
-        <SectionTitle id="como-termina" size="md">
-          Como termina um workflow
-        </SectionTitle>
-        <div className="flex flex-wrap gap-x-8 gap-y-3">
-          <p className="grow basis-80 text-body-sm text-ink-2">
-            <strong className="font-semibold text-ink">Expirado</strong> · chegou à data de fim que foi agendada com a versão,
-            como um procedimento sazonal. O sistema aplica a data sozinho.
-          </p>
-          <p className="grow basis-80 text-body-sm text-ink-2">
-            <strong className="font-semibold text-ink">Retirado</strong> · um gestor terminou-o antes do previsto, pondo-lhe uma
-            data de fim mais cedo.
-          </p>
+const actionOf = {
+  submissao: 'Preenche o formulário e junta os documentos.',
+  revisao: 'Aprova, devolve para correção ou rejeita.',
+  validacao: 'Confirma, fecha o procedimento e gera o documento final.',
+}
+
+/** E12b · Ver workflow completo (UC03): every step, its form and its reasons */
+export function WorkflowDetailPage({ persona }: { persona: PersonaId }) {
+  const { id } = useParams()
+  const { wfs } = useDemo()
+  const navigate = useNavigate()
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  useFocusOnArrival(headingRef)
+  const w = wfs.find((x) => x.id === id)
+  if (!w) return <Navigate to={paths.workflows} replace />
+
+  return (
+    <AppShell persona={persona} active="workflows" mainClassName="max-w-list gap-7">
+      <header className="flex flex-col gap-3.5">
+        <Button
+          variant="secondary"
+          size="l"
+          icon="arrowLeft"
+          className="self-start"
+          onClick={() => navigate(paths.workflows, { state: { abrir: w.id } satisfies NavState })}
+        >
+          Anterior<span className="sr-only">: Workflows</span>
+        </Button>
+        <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2.5">
+          <h1 ref={headingRef} tabIndex={-1} className="m-0 text-headline-lg outline-none">
+            {w.nome}
+          </h1>
+          <Chip tone="ok" icon="check">
+            {w.estado}
+          </Chip>
         </div>
-        <p className="text-body-sm text-ink-2">
-          Nos dois casos deixa de aceitar pedidos novos, e os pedidos em curso terminam na versão com que começaram. Editar cria
-          uma nova versão, que só entra em vigor depois de aprovada e agendada.
+        <p className="m-0 max-w-prose-xl text-[17px] leading-[27px] text-ink-2">{w.desc || 'Sem descrição.'}</p>
+        <p className="m-0 text-[14px] leading-5 text-ink-3">
+          Versão 1 · criado por {withRole(w.autor || 'Sofia Almeida')} a {w.data}
         </p>
-      </Panel>
-    </AppLayout>
+      </header>
+      <dl className="m-0 flex flex-wrap gap-3">
+        {facts(w)
+          .concat([{ rot: 'Documentos pedidos', v: w.precisa || '—' }])
+          .map((f) => (
+            <div key={f.rot} className="edge flex flex-[1_1_180px] flex-col gap-0.5 rounded-md bg-soft px-4 py-3.5">
+              <dt className="text-label-sm leading-[18px] text-ink-2">{f.rot}</dt>
+              <dd className="m-0 text-[16px] leading-6 font-semibold">{f.v}</dd>
+            </div>
+          ))}
+      </dl>
+      <section aria-labelledby="titulo-percurso" className="flex flex-col gap-4">
+        <h2 id="titulo-percurso" className="m-0 text-[22px] leading-[30px] font-semibold">
+          Percurso de um pedido
+        </h2>
+        <ol className="m-0 flex list-none flex-col p-0">
+          {w.passos.map((x, j) => {
+            const sub = x.tipo === 'submissao'
+            const campos = sub ? (w.id === 'ac' ? fieldsAC() : x.campos || []) : []
+            const motivos = sub ? [] : w.id === 'ac' ? reasonsAC(j) : x.motivos || []
+            return (
+              <li key={x.id} className="flex gap-4.5">
+                <div aria-hidden="true" className="flex w-10 shrink-0 flex-col items-center">
+                  <span className="grid size-10 place-items-center rounded-full border-2 border-orange bg-bg text-[16px] font-extrabold">{j + 1}</span>
+                  {j < w.passos.length - 1 && <span className="min-h-4 w-0.5 flex-1 bg-line-strong" />}
+                </div>
+                <article aria-labelledby={'pd-' + x.id} className="mb-4.5 flex min-w-0 flex-1 flex-col gap-3.5 rounded-item border border-line bg-panel px-5.5 py-5">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                    <h3 id={'pd-' + x.id} className="m-0 flex-[1_1_220px] text-title-sm font-semibold">
+                      <span className="sr-only">Passo {j + 1}: </span>
+                      {x.nome}
+                    </h3>
+                    <Chip tone={sub ? 'neutro' : x.tipo === 'validacao' ? 'ok' : 'info'} size="sm">
+                      {stepTypes[x.tipo].nome}
+                    </Chip>
+                  </div>
+                  <dl className="m-0 grid grid-cols-[minmax(120px,170px)_minmax(0,1fr)] gap-x-4 gap-y-1.5 text-[15px] leading-[22px]">
+                    <dt className="text-ink-2">{sub ? 'Quem pode pedir' : 'Quem trata'}</dt>
+                    <dd className="m-0">{x.quem || '—'}</dd>
+                    <dt className="text-ink-2">Prazo legal</dt>
+                    <dd className="m-0">{sub ? '—' : x.prazo + ' dias úteis'}</dd>
+                    <dt className="text-ink-2">O que acontece</dt>
+                    <dd className="m-0">{actionOf[x.tipo]}</dd>
+                  </dl>
+                  {campos.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <h4 className="m-0 text-[15px] leading-[22px] font-semibold">Campos do formulário · {campos.length}</h4>
+                      <ul className="m-0 list-none overflow-hidden rounded-md border border-line p-0">
+                        {campos.map((c, k) => (
+                          <li key={k} className={cx('flex flex-wrap items-center gap-x-3.5 gap-y-1.5 px-3.5 py-2.5', k > 0 && 'border-t border-line')}>
+                            <span className="flex-[1_1_200px] text-[15px] font-semibold">{c.rot || 'Campo sem rótulo'}</span>
+                            <span className="text-[14px] text-ink-2">{c.tipo}</span>
+                            <Chip tone={c.origem === 'idp' ? 'neutro' : c.obrig ? 'warn' : 'neutro'} size="xs" icon={c.origem === 'idp' ? 'lock' : undefined} iconSize={12}>
+                              {c.origem === 'idp' ? 'Do perfil' : c.obrig ? 'Obrigatório' : 'Opcional'}
+                            </Chip>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {motivos.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <h4 className="m-0 text-[15px] leading-[22px] font-semibold">Motivos para devolver ou rejeitar</h4>
+                      <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+                        {motivos.map((m) => (
+                          <li key={m.nome} className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[15px] leading-[22px]">
+                            <span className="flex-[1_1_220px]">{m.nome}</span>
+                            <Chip tone={m.fix ? 'warn' : 'bad'} size="xs" icon={m.fix ? 'reset' : 'x'}>
+                              {m.fix ? 'Volta ao requerente para corrigir' : 'Encerra o pedido'}
+                            </Chip>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </article>
+              </li>
+            )
+          })}
+        </ol>
+      </section>
+    </AppShell>
   )
 }

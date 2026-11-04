@@ -1,119 +1,96 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router'
-import { paths } from '../../routes'
 import { cx } from '../../lib/cx'
+import { paths } from '../../routes'
+import { Button } from '../Button'
 import { Icon, type IconName } from '../Icon'
-import { Logo } from '../Logo'
 
-export type NavKey = 'inbox' | 'meus' | 'novo' | 'workflows' | 'regras' | 'visao' | 'alteracoes'
+export type SidebarItem = 'inbox' | 'novo' | 'workflows'
 
-export type SidebarProps = {
-  active?: NavKey
-  /** Tasks waiting in the inbox */
-  inboxCount?: number
-  /** Where "Caixa de tarefas" leads (RH has its own inbox) */
-  inboxTo?: string
-  /** Shows the "Aprovações" group with this many pending changes */
-  approvalsCount?: number
+type Props = {
+  active: SidebarItem
+  /** Tasks waiting for the person (badge of «Caixa de tarefas») */
+  tasks: number
+  /** Workflow managers also create workflows */
+  manager: boolean
 }
 
-type Item = { key: NavKey; label: string; icon: IconName; to: string; count?: number; countLabel?: string }
+const itemBase = 'flex min-h-12 items-center gap-3 rounded-md px-3.5 text-[15px] leading-5 no-underline'
+const itemOn = 'bg-accent-soft font-semibold text-ink shadow-[inset_4px_0_0_var(--color-orange)] hover:text-ink'
+const itemOff = 'font-normal text-ink-2 hover:bg-soft-hover hover:text-ink'
 
-function NavItem({ item, active }: { item: Item; active: boolean }) {
+function Item({ to, icon, label, on, children }: { to: string; icon: IconName; label: string; on: boolean; children?: ReactNode }) {
   return (
     <li>
-      <Link
-        to={item.to}
-        aria-current={active ? 'page' : undefined}
-        className={cx(
-          'flex min-h-11 items-center gap-3 rounded-pill px-3.5 text-label-md transition',
-          active ? 'bg-brand font-semibold text-on-brand hover:text-on-brand' : 'text-ink-2 hover:bg-soft hover:text-ink',
-        )}
-      >
-        <Icon name={item.icon} size={20} />
-        <span className="flex-1">{item.label}</span>
-        {item.count !== undefined && (
-          <>
-            <span
-              aria-hidden="true"
-              className={cx(
-                'grid h-6 min-w-6 place-items-center rounded-pill px-2 text-caption font-semibold text-ink',
-                active ? 'bg-bg/60' : 'bg-soft',
-              )}
-            >
-              {item.count}
-            </span>
-            <span className="sr-only">, {item.countLabel}</span>
-          </>
-        )}
+      <Link to={to} aria-current={on ? 'page' : undefined} className={cx(itemBase, on ? itemOn : itemOff)}>
+        <Icon name={icon} size={20} />
+        <span className="flex-1">{label}</span>
+        {children}
       </Link>
     </li>
   )
 }
 
-function GroupLabel({ id, children }: { id: string; children: string }) {
+/** Side menu of every screen: new request, the inbox and, for managers, the workflows */
+export function Sidebar({ active, tasks, manager }: Props) {
   return (
-    <p id={id} className="mx-3.5 mt-5 mb-1.5 text-label-sm font-semibold text-ink-3">
-      {children}
-    </p>
-  )
-}
-
-/** Main navigation: personal items, "Gestão" and, for approvers, "Aprovações". */
-export function Sidebar({ active, inboxCount = 0, inboxTo = paths.inbox, approvalsCount }: SidebarProps) {
-  const personal: Item[] = [
-    {
-      key: 'inbox',
-      label: 'Caixa de tarefas',
-      icon: 'inbox',
-      to: inboxTo,
-      count: inboxCount,
-      countLabel: inboxCount === 1 ? '1 tarefa à espera' : `${inboxCount} tarefas à espera`,
-    },
-    { key: 'meus', label: 'Os meus pedidos', icon: 'folder', to: paths.myRequests },
-    { key: 'novo', label: 'Novo pedido', icon: 'plus', to: paths.newRequest },
-  ]
-  const management: Item[] = [
-    { key: 'workflows', label: 'Workflows', icon: 'workflow', to: paths.workflows },
-    { key: 'regras', label: 'Regras de negócio', icon: 'sliders', to: paths.rules },
-    { key: 'visao', label: 'Visão geral', icon: 'chart', to: paths.overview },
-  ]
-
-  return (
-    <nav aria-label="Principal" className="flex min-h-screen flex-col gap-1 bg-bg px-4 py-6">
-      <Link to={inboxTo} className="block px-3 pb-7">
-        <Logo alt="defiro · início" className="h-7.5" />
-      </Link>
-      <ul className="flex flex-col gap-1">
-        {personal.map((item) => (
-          <NavItem key={item.key} item={item} active={item.key === active} />
-        ))}
-      </ul>
-      <GroupLabel id="nav-gestao">Gestão</GroupLabel>
-      <ul aria-labelledby="nav-gestao" className="flex flex-col gap-1">
-        {management.map((item) => (
-          <NavItem key={item.key} item={item} active={item.key === active} />
-        ))}
-      </ul>
-      {approvalsCount !== undefined && (
+    <nav aria-label="Menu principal" className="relative box-border flex h-full w-full flex-col gap-1 bg-bg px-4 py-6 text-ink">
+      <a className="skip-link" href="#conteudo">
+        Saltar para o conteúdo principal
+      </a>
+      <a className="skip-link" href="#botao-acessibilidade">
+        Ir para o menu de acessibilidade
+      </a>
+      {manager ? (
         <>
-          <GroupLabel id="nav-aprovacoes">Aprovações</GroupLabel>
-          <ul aria-labelledby="nav-aprovacoes" className="flex flex-col gap-1">
-            <NavItem
-              item={{
-                key: 'alteracoes',
-                label: 'Alterações por aprovar',
-                icon: 'gitPullRequest',
-                to: paths.approvals,
-                count: approvalsCount,
-                countLabel: `${approvalsCount} por aprovar`,
-              }}
-              active={active === 'alteracoes'}
-            />
+          <Button to={paths.designer} size="l" icon="plus" iconSize={20} className="mb-2.5 w-full">
+            Criar workflow
+          </Button>
+          <Button
+            to={paths.newRequest}
+            variant="secondary"
+            size="l"
+            icon="send"
+            aria-current={active === 'novo' ? 'page' : undefined}
+            className="mb-4.5 w-full"
+          >
+            Novo pedido
+          </Button>
+        </>
+      ) : (
+        <Button to={paths.newRequest} size="l" icon="plus" iconSize={20} aria-current={active === 'novo' ? 'page' : undefined} className="mb-4.5 w-full">
+          Novo pedido
+        </Button>
+      )}
+      <ul className="m-0 flex list-none flex-col gap-1 p-0">
+        <Item to={paths.inbox} icon="inbox" label="Caixa de tarefas" on={active === 'inbox'}>
+          {tasks > 0 && (
+            <>
+              <span
+                aria-hidden="true"
+                className={cx(
+                  'box-border inline-grid h-6.5 min-w-6.5 place-items-center rounded-pill px-2 text-[13px] font-semibold',
+                  active === 'inbox' ? 'bg-ink text-bg' : 'edge bg-soft text-ink',
+                )}
+              >
+                {tasks}
+              </span>
+              <span className="sr-only">, {tasks === 1 ? '1 tarefa à espera' : `${tasks} tarefas à espera`}</span>
+            </>
+          )}
+        </Item>
+      </ul>
+      {manager && (
+        <>
+          <p id="menu-gestao" className="mx-3.5 mt-5 mb-1.5 text-label-sm leading-[18px] font-semibold text-ink-3">
+            Gestão
+          </p>
+          <ul aria-labelledby="menu-gestao" className="m-0 flex list-none flex-col gap-1 p-0">
+            <Item to={paths.workflows} icon="workflow" label="Workflows" on={active === 'workflows'} />
           </ul>
         </>
       )}
       <span className="min-h-8 flex-1" />
-      <p className="mt-3 border-t border-line px-3.5 pt-3.5 text-label-sm text-ink-3">Câmara Municipal de Aveiro</p>
     </nav>
   )
 }

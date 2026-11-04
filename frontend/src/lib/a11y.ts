@@ -9,6 +9,8 @@ export type Saturation = '' | 'baixa' | 'alta' | 'cinza'
 export type TextScale = '1' | '1.25' | '1.5' | '2'
 export type Step = '0' | '1' | '2' | '3'
 export type FontChoice = '' | 'legivel' | 'dislexia'
+/** Brand colours: defiro (orange) or Câmara Municipal de Aveiro (blue of the ria) */
+export type Theme = 'defiro' | 'cma'
 
 export type A11ySettings = {
   /** Contrast (light/dark) and colour-blind palettes share one setting: only one palette applies at a time */
@@ -24,6 +26,8 @@ export type A11ySettings = {
   foco: boolean
   pausa: boolean
   voz: boolean
+  /** Chosen in the account menu; high contrast and dark mode take priority over it */
+  tema: Theme
 }
 
 export const defaultA11y: A11ySettings = {
@@ -37,7 +41,13 @@ export const defaultA11y: A11ySettings = {
   foco: false,
   pausa: false,
   voz: false,
+  tema: 'defiro',
 }
+
+export const themes: Array<{ id: Theme; nome: string; desc: string; c1: string; c2: string }> = [
+  { id: 'defiro', nome: 'defiro', desc: 'Laranja, a cor do projeto.', c1: '#e7a718', c2: '#da6202' },
+  { id: 'cma', nome: 'Câmara Municipal de Aveiro', desc: 'Azul da ria, da identidade da Câmara.', c1: '#4fb3d3', c2: '#0087b1' },
+]
 
 export type ProfileId = 'visao' | 'daltonismo' | 'dislexia' | 'epilepsia' | 'teclado'
 
@@ -55,7 +65,8 @@ const STORAGE_KEY = 'defiro.a11y'
 export function loadA11y(): A11ySettings {
   try {
     const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '{}') as Partial<A11ySettings>
-    return { ...defaultA11y, ...saved }
+    const merged = { ...defaultA11y, ...saved, texto: String(saved.texto || '1') as TextScale }
+    return merged.tema === 'cma' ? merged : { ...merged, tema: 'defiro' }
   } catch {
     return defaultA11y
   }
@@ -83,9 +94,9 @@ export function a11yTokens(a: A11ySettings): string {
   return tokens.join(' ')
 }
 
-/** How many settings differ from the defaults (badge on the menu button) */
+/** How many settings differ from the defaults (badge on the menu button); the theme is not an accessibility setting */
 export function countActive(a: A11ySettings): number {
-  return (Object.keys(defaultA11y) as Array<keyof A11ySettings>).filter((k) => a[k] !== defaultA11y[k]).length
+  return (Object.keys(defaultA11y) as Array<keyof A11ySettings>).filter((k) => k !== 'tema' && a[k] !== defaultA11y[k]).length
 }
 
 export function isProfileOn(a: A11ySettings, settings: Partial<A11ySettings>): boolean {

@@ -21,6 +21,8 @@ export function A11yProvider({ children }: { children: ReactNode }) {
     else delete html.dataset.a11y
     if (settings.cor !== 'padrao') html.dataset.cor = settings.cor
     else delete html.dataset.cor
+    if (settings.tema === 'cma') html.dataset.tema = 'cma'
+    else delete html.dataset.tema
   }, [settings])
 
   // Read aloud: a click reads the text clicked; moving with the keyboard reads what gets the focus
@@ -63,7 +65,8 @@ export function A11yProvider({ children }: { children: ReactNode }) {
     () => ({
       settings,
       update: (patch: Partial<A11ySettings>) => setSettings((current) => ({ ...current, ...patch })),
-      reset: () => setSettings(defaultA11y),
+      // «Repor» puts the accessibility settings back and keeps the theme
+      reset: () => setSettings((current) => ({ ...defaultA11y, tema: current.tema })),
     }),
     [settings],
   )

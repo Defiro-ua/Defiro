@@ -1,60 +1,38 @@
+import type { ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
-import { AbsencesPage } from './pages/AbsencesPage'
-import { ApprovalsPage } from './pages/ApprovalsPage'
-import { CorrectRequestPage } from './pages/CorrectRequestPage'
+import { isManager } from './domain/people'
+import type { PersonaId } from './domain/types'
 import { DesignerPage } from './pages/DesignerPage'
-import { FinalValidationPage } from './pages/FinalValidationPage'
-import { HrInboxPage } from './pages/HrInboxPage'
 import { InboxPage } from './pages/InboxPage'
 import { LoginPage } from './pages/LoginPage'
-import { MyRequestsPage } from './pages/MyRequestsPage'
 import { NewRequestPage } from './pages/NewRequestPage'
-import { NotificationsPage } from './pages/NotificationsPage'
-import { OverviewPage } from './pages/OverviewPage'
 import { RequestFormPage } from './pages/RequestFormPage'
-import { ReviewPage } from './pages/ReviewPage'
-import { RulesPage } from './pages/RulesPage'
-import { SearchPage } from './pages/SearchPage'
-import { StepFormsPage } from './pages/StepFormsPage'
-import { SubmitChangePage } from './pages/SubmitChangePage'
-import { VersionsPage } from './pages/VersionsPage'
-import { WorkflowsPage } from './pages/WorkflowsPage'
+import { RequestPage } from './pages/RequestPage'
+import { WorkflowDetailPage, WorkflowsPage } from './pages/WorkflowsPage'
 import { paths } from './routes'
+import { useDemo } from './state/demoContext'
+
+/** The screens after signing in; without a person, back to Entrar */
+function SignedIn({ children, manager }: { children: (persona: PersonaId) => ReactNode; manager?: boolean }) {
+  const { persona } = useDemo()
+  if (!persona) return <Navigate to={paths.login} replace />
+  // the management screens are only for workflow managers, also when opened by their address
+  if (manager && !isManager(persona)) return <Navigate to={paths.inbox} replace />
+  return <>{children(persona)}</>
+}
 
 export function App() {
   return (
     <Routes>
       <Route path={paths.login} element={<LoginPage />} />
-
-      {/* 1 · Requester */}
-      <Route path={paths.newRequest} element={<NewRequestPage />} />
-      <Route path={paths.requestForm} element={<RequestFormPage />} />
-      <Route path={paths.sign} element={<RequestFormPage />} />
-      <Route path={paths.myRequests} element={<MyRequestsPage />} />
-      <Route path={paths.correct} element={<CorrectRequestPage />} />
-
-      {/* 2 · Reviewers */}
-      <Route path={paths.inbox} element={<InboxPage />} />
-      <Route path={paths.review} element={<ReviewPage />} />
-      <Route path={paths.reject} element={<ReviewPage />} />
-      <Route path={paths.inboxHr} element={<HrInboxPage />} />
-      <Route path={paths.finalValidation} element={<FinalValidationPage />} />
-
-      {/* 3 · Workflow management */}
-      <Route path={paths.workflows} element={<WorkflowsPage />} />
-      <Route path={paths.designer} element={<DesignerPage />} />
-      <Route path={paths.stepForms} element={<StepFormsPage />} />
-      <Route path={paths.submitChange} element={<SubmitChangePage />} />
-      <Route path={paths.approvals} element={<ApprovalsPage />} />
-      <Route path={paths.rules} element={<RulesPage />} />
-      <Route path={paths.versions} element={<VersionsPage />} />
-
-      {/* 4 · Search, notifications and follow-up */}
-      <Route path={paths.search} element={<SearchPage />} />
-      <Route path={paths.notifications} element={<NotificationsPage />} />
-      <Route path={paths.overview} element={<OverviewPage />} />
-      <Route path={paths.absences} element={<AbsencesPage />} />
-
+      <Route path={paths.inbox} element={<SignedIn>{(p) => <InboxPage persona={p} />}</SignedIn>} />
+      <Route path={paths.newRequest} element={<SignedIn>{(p) => <NewRequestPage persona={p} />}</SignedIn>} />
+      <Route path="/novo-pedido/:wf" element={<SignedIn>{(p) => <RequestFormPage persona={p} mode="novo" />}</SignedIn>} />
+      <Route path="/pedidos/:id" element={<SignedIn>{(p) => <RequestPage persona={p} />}</SignedIn>} />
+      <Route path="/pedidos/:id/corrigir" element={<SignedIn>{(p) => <RequestFormPage persona={p} mode="corrigir" />}</SignedIn>} />
+      <Route path={paths.workflows} element={<SignedIn manager>{(p) => <WorkflowsPage persona={p} />}</SignedIn>} />
+      <Route path={paths.designer} element={<SignedIn manager>{() => <DesignerPage />}</SignedIn>} />
+      <Route path="/workflows/:id" element={<SignedIn manager>{(p) => <WorkflowDetailPage persona={p} />}</SignedIn>} />
       <Route path="*" element={<Navigate to={paths.login} replace />} />
     </Routes>
   )

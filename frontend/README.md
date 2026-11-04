@@ -1,10 +1,12 @@
 # Defiro
 
-Protótipo navegável da aplicação **defiro** (pedidos e workflows da Câmara Municipal de Aveiro), feito a partir dos
-mockups da página «Versão completa» do canvas *defiro · mockups da aplicação*.
+Protótipo navegável da aplicação **defiro** (pedidos e workflows da Câmara Municipal de Aveiro), feito a partir da
+página «Opção 1 · Protótipo único» do canvas *defiro · mockups da aplicação*: os ecrãs do MVP com os mesmos dados
+partilhados, de modo que o que uma pessoa faz chega à seguinte.
 
 React 19 + Vite + TypeScript, Tailwind CSS 4 (plugin `@tailwindcss/vite`) e React Router. Os dados são fictícios e
-todas as interações usam estado local: nada é guardado.
+ficam neste separador do navegador (`sessionStorage`): recarregar a página mantém a demonstração, um separador novo
+começa do início.
 
 ## Correr
 
@@ -19,42 +21,49 @@ Outros comandos: `npm run build` (verifica os tipos e gera `dist/`), `npm run pr
 
 | Rota | Ecrã |
 | --- | --- |
-| `/` | E01 Entrar |
-| `/caixa-de-tarefas` | E02 Caixa de tarefas (Rui) |
-| `/caixa-de-tarefas/rh` | E02b Caixa de tarefas (RH, Joana) |
+| `/` | E01 Entrar (escolher a conta da demonstração) |
+| `/caixa-de-tarefas` | E02 Caixa de tarefas e «Os meus pedidos» |
 | `/novo-pedido` | E03 Novo pedido |
-| `/novo-pedido/ajudas-de-custo` | E04 Formulário do pedido |
-| `/novo-pedido/ajudas-de-custo/assinar` | E05 Assinar com Chave Móvel Digital |
-| `/os-meus-pedidos` | E06 Os meus pedidos |
-| `/os-meus-pedidos/AC-2026-0147/corrigir` | E07 Corrigir pedido devolvido |
-| `/caixa-de-tarefas/AC-2026-0147` | E08 Rever documento |
-| `/caixa-de-tarefas/AC-2026-0147/rejeitar` | E09 Rejeitar documento |
-| `/caixa-de-tarefas/rh/AC-2026-0122` | E10 Validação final |
-| `/pesquisa` | E11 Pesquisa |
-| `/workflows` | E12 Workflows |
-| `/workflows/ajudas-de-custo/fluxo` | E13 Designer (`?vista=regras` para as regras) |
-| `/workflows/ajudas-de-custo/formularios` | E14 Formulário do passo |
-| `/workflows/ajudas-de-custo/submeter` | E15 Submeter alteração |
-| `/aprovacoes` | E16 Rever alteração |
-| `/regras-de-negocio` | E17 Regras de negócio |
-| `/workflows/ajudas-de-custo/versoes` | E18 Versões e agendamento |
-| `/notificacoes` | E19 Notificações |
-| `/visao-geral` | E20 Visão geral |
-| `/ausencias` | E21 Ausências e delegação |
+| `/novo-pedido/:workflow` | E04 Formulário do pedido, passo a passo |
+| `/pedidos/:id` | E08 Rever pedido · E10 Validação final · ver um pedido (`?ver=1`) |
+| `/pedidos/:id/corrigir` | E07 Corrigir pedido devolvido (abre no resumo) |
+| `/workflows` | E12 Workflows (Sofia) |
+| `/workflows/:id` | E12b Ver o workflow completo |
+| `/workflows/criar` | E13 Criar workflow, passo a passo · E14 Campos do formulário |
 
-Para mudar de pessoa: menu da conta (avatar) → **Ver como**.
+## Percurso sugerido
 
-**Menu de acessibilidade:** o botão redondo no canto inferior esquerdo, em todos os ecrãs (componente
-«Menu de acessibilidade» do mockup). Tem perfis (visão reduzida, daltonismo, dislexia, epilepsia, teclado) e
-ajustes: contraste claro e escuro, cores para daltonismo, saturação, texto maior, espaço entre letras,
-altura das linhas, realçar ligações, tipo de letra legível ou para dislexia, foco reforçado, parar animações,
-ler em voz alta e estrutura da página. As escolhas ficam guardadas neste navegador (`localStorage`).
+1. Entrar como **Ana** → Novo pedido → Ajudas de custo → responder passo a passo → Submeter
+2. Ver como **Rui** → Rever o pedido novo → Nota num campo → Devolver para correção (um ou mais motivos; experimentar
+   Desfazer)
+3. Ver como **Ana** → Corrigir (abre no resumo, com as partes a corrigir assinaladas) → Reenviar
+4. Ver como **Rui** → Aprovar · Ver como **Carla** → Aprovar
+5. Ver como **Joana** → Validar e fechar → Ver documento → Transferir PDF
+6. Ver como **Ana** → Os meus pedidos → Documento
+7. Ver como **Sofia** → Workflows → abrir «Ajudas de custo» → Ver o workflow completo · Criar workflow (no menu):
+   nome → quem pede → cada passo do percurso (quem trata, prazo, motivos) → formulário, um campo de cada vez → rever →
+   a Ana passa a vê-lo em Novo pedido
+
+Depois de cada ação aparece um pequeno aviso no topo do ecrã. Nos formulários, «Anterior» fica em baixo, junto de
+«Continuar», e «Sair» em cima, à direita.
+
+**Menu da conta** (avatar): **Ver como** muda de pessoa · **Tema** escolhe as cores da defiro ou da Câmara Municipal de
+Aveiro · **Recomeçar a demonstração** volta aos pedidos e workflows do início · Terminar sessão.
+
+**Menu de acessibilidade:** o botão redondo no canto inferior esquerdo, em todos os ecrãs. Tem perfis (visão reduzida,
+daltonismo, dislexia, epilepsia, teclado) e ajustes: contraste claro e escuro, cores para daltonismo, saturação, texto
+maior, espaço entre letras, altura das linhas, realçar ligações, tipo de letra legível ou para dislexia, foco reforçado,
+parar animações, ler em voz alta e estrutura da página. As escolhas (e o tema) ficam guardadas neste navegador
+(`localStorage`); o alto contraste e o modo escuro têm prioridade sobre o tema.
 
 ## Organização
 
-- `src/index.css`: tema do Tailwind com os tokens do design system *defiro* (cores, tipografia, raios, sombras, larguras)
-  e as paletas e regras do menu de acessibilidade.
-- `src/components/`: componentes reutilizáveis (`form/`, `layout/`) e peças de cada área (`request/`, `review/`, `tasks/`, `workflow/`, `overview/`).
+- `src/domain/`: dados e regras do protótipo, sem React: pessoas e grupos, o workflow «Ajudas de custo», os pedidos
+  de exemplo, submeter, reenviar e decidir, validação do formulário e o desenho de workflows.
+- `src/state/`: os dados partilhados da demonstração (`DemoProvider`) e as confirmações curtas (`FeedbackProvider`).
+- `src/components/`: componentes reutilizáveis (botões, chips, aviso, documento em PDF, linha de progresso, campos de
+  formulário) e a estrutura dos ecrãs em `layout/`.
 - `src/pages/`: um ficheiro por ecrã.
-- `src/data/`: dados fictícios, separados dos componentes.
-- `src/routes.ts`: as rotas de todos os ecrãs.
+- `src/lib/`: utilitários (acessibilidade, PDF, foco, estilos dos campos).
+- `src/index.css`: tema do Tailwind com os tokens do design system *defiro*, o tema da Câmara de Aveiro e as paletas e
+  regras do menu de acessibilidade.

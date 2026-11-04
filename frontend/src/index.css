@@ -1,32 +1,34 @@
 @import 'tailwindcss';
 
 /*
- * defiro design tokens, taken from the design system bundled with the mockup
- * (project/ds/defiro/tokens.json). Components only use these tokens; the
- * default Tailwind palettes, radii, shadows and type scale are cleared so that
- * nothing outside the system can be used by accident.
+ * defiro design tokens, as used by the prototype of the mockup (Opção 1 ·
+ * Protótipo único). Components only use these tokens; the default Tailwind
+ * palettes, radii, shadows and type scale are cleared so that nothing outside
+ * the system can be used by accident.
+ *
+ * The brand theme (defiro or Câmara Municipal de Aveiro) and the palettes of
+ * the accessibility menu replace these values further down.
  */
 @theme {
   --color-*: initial;
   --color-transparent: transparent;
   --color-current: currentColor;
-  /* Text on solid status fills (success badge, danger button) and on the dark header strip */
-  --color-on-status: #ffffff;
-  --color-on-dark: #fffdfa;
 
   /* Surfaces */
   --color-bg: #fffdfa;
-  --color-soft: #fcf3dc;
   --color-panel: #ffffff;
-  --color-soft-hover: #fef8ea;
-  --color-selected: #f8ebcb;
+  --color-soft: #fcf3dc;
   --color-tint: #fefaf0;
+  --color-soft-hover: #fef8ea;
+  --color-accent-soft: #fbefe3;
+  --color-chip: #f0e6cc;
 
   /* Lines */
   --color-line: #f0e6cc;
   --color-line-strong: #e2d3ad;
-  --color-line-muted: #c9bd9f;
   --color-field: #8c8170;
+  /* Outline that only shows in high contrast, where every fill turns white or black */
+  --color-edge: transparent;
 
   /* Text */
   --color-ink: #17130e;
@@ -36,39 +38,40 @@
   /* Brand */
   --color-orange: #da6202;
   --color-yellow: #e7a718;
-  /* Ends of the brand gradient (primary buttons, active items) */
+  /* Ends of the brand gradient (primary buttons, avatars) */
   --color-brand-from: #e7a718;
   --color-brand-to: #da6202;
-  --color-accent-ink: #a64b00;
-  --color-accent-soft: #fbefe3;
   --color-on-brand: #17130e;
-  --color-highlight: #f6dc98;
+  --color-accent-ink: #a64b00;
 
   /* Status */
   --color-success: #1f6b3f;
   --color-success-soft: #e2f2e7;
-  --color-success-tint: #f4fbf6;
-  --color-error: #a1251b;
-  --color-error-soft: #fce4e0;
   --color-warning: #7a4f00;
   --color-warning-soft: #fcebc0;
+  --color-error: #a1251b;
+  --color-error-soft: #fce4e0;
   --color-info: #245a86;
   --color-info-soft: #e2eef8;
-  /* "Changed" markers in version comparisons */
-  --color-changed: #b07800;
-  --color-changed-soft: #fffaf0;
+  /* Text on solid status fills (danger button) */
+  --color-on-status: #ffffff;
 
-  /* Placeholder pill ("Demonstração") */
-  --color-ph-bg: #fff6d6;
-  --color-ph-ink: #7a5a00;
-  --color-ph-line: #d9b64a;
+  /* Focus */
+  --color-focus: #17130e;
+  --color-focus-halo: #fffdfa;
+  --color-focus-ring: rgb(218 98 2 / 0.16);
 
-  /* Footer */
+  /* Dark surfaces: footer, header of the accessibility menu, its round button */
   --color-footer: #17130e;
   --color-footer-ink: #d2cbbf;
-  --color-footer-dim: #9b9387;
+  --color-footer-head: #ffffff;
+  --color-on-dark: #fffdfa;
+  --color-a11y-btn: #17130e;
+  --color-a11y-btn-ink: #ffffff;
 
-  --color-scrim: rgb(23 19 14 / 0.45);
+  --color-scrim: rgb(23 19 14 / 0.5);
+  /* Tint of the soft shadows under floating bars and menus */
+  --color-sombra: rgb(166 75 0 / 0.35);
 
   /* Typography */
   --font-*: initial;
@@ -77,29 +80,10 @@
   --font-dyslexia: Lexend, Poppins, system-ui, sans-serif;
 
   --text-*: initial;
-  /* Fluid like the site's hero: 40px on phones up to 76px at 1440px */
-  --text-hero: clamp(40px, 5.3vw, 76px);
-  --text-hero--line-height: 1.05;
-  --text-hero--letter-spacing: -0.035em;
-  --text-hero--font-weight: 800;
   --text-headline-lg: 32px;
   --text-headline-lg--line-height: 38px;
   --text-headline-lg--letter-spacing: -0.03em;
   --text-headline-lg--font-weight: 800;
-  --text-stat: 32px;
-  --text-stat--line-height: 36px;
-  --text-stat--letter-spacing: -0.03em;
-  --text-stat--font-weight: 800;
-  --text-headline-md: 24px;
-  --text-headline-md--line-height: 30px;
-  --text-headline-md--letter-spacing: -0.02em;
-  --text-headline-md--font-weight: 800;
-  --text-heading: 24px;
-  --text-heading--line-height: 30px;
-  --text-heading--letter-spacing: -0.01em;
-  --text-heading--font-weight: 600;
-  --text-lede: 20px;
-  --text-lede--line-height: 1.65;
   --text-title-lg: 20px;
   --text-title-lg--line-height: 28px;
   --text-title-lg--letter-spacing: -0.01em;
@@ -107,8 +91,6 @@
   --text-body-lg--line-height: 29px;
   --text-title-sm: 18px;
   --text-title-sm--line-height: 26px;
-  --text-search: 17px;
-  --text-search--line-height: 24px;
   --text-title-md: 16px;
   --text-title-md--line-height: 24px;
   --text-body-md: 16px;
@@ -125,12 +107,11 @@
   --text-caption--line-height: 17px;
   --text-micro: 11px;
   --text-micro--line-height: 16px;
-  --text-doc: 9px;
-  --text-doc--line-height: 13px;
 
   --tracking-*: initial;
   --tracking-title: -0.01em;
   --tracking-heading: -0.02em;
+  --tracking-question: -0.025em;
   --tracking-headline: -0.03em;
   --tracking-display: -0.035em;
 
@@ -144,48 +125,33 @@
   --radius-item: 14px;
   --radius-lg: 16px;
   --radius-menu: 22px;
-  --radius-sheet: 26px;
   --radius-pill: 999px;
   --radius-full: 9999px;
 
-  /* Shadows: tinted with brand orange, never black */
+  /* Shadows: tinted with the brand colour, never black */
   --shadow-*: initial;
-  --shadow-island: 0 10px 28px -14px rgb(166 75 0 / 0.35);
-  --shadow-menu: 0 16px 36px -14px rgb(166 75 0 / 0.35);
-  --shadow-primary: 0 8px 24px -10px rgb(218 98 2 / 0.6);
-  --shadow-embed: 0 24px 56px -28px rgb(166 75 0 / 0.35);
-  --shadow-modal: 0 16px 48px rgb(23 19 14 / 0.18);
-  --shadow-focus-field: 0 0 0 4px rgb(218 98 2 / 0.18);
-  --shadow-halo-now: 0 0 0 6px rgb(218 98 2 / 0.28);
-  --shadow-halo-sm: 0 0 0 4px rgb(218 98 2 / 0.28);
-  --shadow-halo-warning: 0 0 0 4px rgb(231 167 24 / 0.3);
+  --shadow-island: 0 10px 28px -14px var(--color-sombra);
+  --shadow-menu: 0 16px 36px -14px var(--color-sombra);
+  --shadow-toast: 0 12px 30px -18px rgb(23 19 14 / 0.5);
+  --shadow-paper: 0 10px 28px -18px rgb(23 19 14 / 0.4);
   --shadow-a11y: 0 10px 28px -8px rgb(23 19 14 / 0.55), 0 0 0 1px var(--color-line-strong);
   --shadow-sheet-left: -24px 0 60px -24px rgb(23 19 14 / 0.45);
 
   /* Layout widths */
-  --container-hero: 940px; /* 700px of text + 120px side padding */
+  --container-form: 680px;
   --container-reading: 760px;
-  --container-narrow: 960px;
-  --container-submit: 1120px;
-  --container-rules: 1180px;
+  --container-list: 1040px;
   --container-content: 1200px;
   --container-detail: 1280px;
-  --container-field: 520px;
-  --container-dialog-xs: 480px;
-  --container-dialog-sm: 520px;
-  --container-dialog-md: 560px;
-  --container-dialog-lg: 580px;
-  --container-dialog-xl: 640px;
-  --container-prose-xs: 40ch;
-  --container-prose-sm: 44ch;
   --container-prose-md: 46ch;
   --container-prose-lg: 62ch;
-  --container-prose-xl: 72ch;
-  --container-prose-2xl: 80ch;
+  --container-prose-xl: 64ch;
 
-  --animate-spin: spin 0.9s linear infinite;
   --animate-slide-in: slide-in 0.22s ease-out;
   --animate-toast: toast-in 0.28s ease-out;
+  /* Notices without buttons fade away by themselves */
+  --animate-notice: toast-in 0.28s ease-out, notice-out 8s linear forwards;
+  --animate-surge: surge 0.35s ease-out;
 
   @keyframes slide-in {
     from {
@@ -199,92 +165,125 @@
       opacity: 0;
     }
   }
+  @keyframes notice-out {
+    0%,
+    88% {
+      opacity: 1;
+      visibility: visible;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+  @keyframes surge {
+    from {
+      transform: translateY(-8px);
+      opacity: 0;
+    }
+  }
 }
 
 /* Colour-blind modes: elements that must not rely on colour alone show extra marks */
 @custom-variant dalt (&:where([data-a11y~='dalt'] *));
 
-/* Brand gradients (sunflower to orange) */
+/* Brand gradient (primary buttons, avatars, «Agora») */
 @utility bg-brand {
   background-image: linear-gradient(135deg, var(--color-brand-from) 0%, var(--color-brand-to) 100%);
 }
-@utility bg-brand-x {
-  background-image: linear-gradient(90deg, var(--color-yellow) 0%, var(--color-orange) 100%);
-}
+/* Vertical bars of the welcome screen */
 @utility bg-brand-bar {
-  background-image: linear-gradient(180deg, var(--color-yellow) 0%, var(--color-orange) 100%);
+  background-image: linear-gradient(to bottom, var(--color-yellow), var(--color-orange));
 }
-/* The floating top bar: gradient hairline around a solid fill */
-@utility border-brand {
-  border: 1.5px solid transparent;
+@utility bg-login {
   background:
-    linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
-    linear-gradient(135deg, rgb(231 167 24 / 0.6) 0%, rgb(218 98 2 / 0.6) 100%) border-box;
+    var(--login-bg),
+    var(--color-bg);
 }
-/* 1.5px outline used for emphasised controls (selected cards, accent buttons) */
+/* 1.5px outline of buttons and emphasised controls */
 @utility border-emph {
   border-width: 1.5px;
 }
-/* Term/description pairs: label column sized to content */
-@utility grid-cols-label {
-  grid-template-columns: auto 1fr;
-}
-/* Dialogs and popovers keep a 16px gutter on phones */
-@utility w-dialog {
-  width: calc(100% - 2rem);
+@utility edge {
+  box-shadow: inset 0 0 0 1px var(--color-edge);
 }
 @utility max-w-screen-gutter {
-  max-width: calc(100vw - 2rem);
+  max-width: calc(100% - 2rem);
 }
-/* Dotted canvas behind the workflow designer */
-@utility bg-dots {
-  background-color: var(--color-tint);
-  background-image: radial-gradient(var(--color-line-strong) 1px, transparent 1.2px);
-  background-size: 20px 20px;
+
+:root {
+  --login-bg:
+    radial-gradient(1100px 680px at 92% -10%, rgb(231 167 24 / 0.22), transparent 62%),
+    radial-gradient(900px 640px at -14% 58%, rgb(218 98 2 / 0.1), transparent 60%),
+    linear-gradient(180deg, #fffdfa 0%, #fff8ec 100%);
 }
 
 @layer base {
   body {
+    margin: 0;
     background-color: var(--color-bg);
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
   a {
     color: var(--color-accent-ink);
   }
   a:hover {
     color: var(--color-ink);
   }
-
   button:not(:disabled),
-  [role='button']:not([aria-disabled='true']),
   label:has(> input[type='radio']),
   label:has(> input[type='checkbox']) {
     cursor: pointer;
   }
-
-  :focus-visible {
-    outline: 3px solid var(--color-orange);
-    outline-offset: 2px;
-  }
-
-  input,
-  select,
   textarea {
-    color: var(--color-ink);
+    resize: none;
   }
-
+  svg {
+    flex-shrink: 0;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-focus) !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 6px var(--color-focus-halo) !important;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 3px solid var(--color-orange) !important;
+    outline-offset: 1px !important;
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 7px var(--color-focus-ring) !important;
+  }
+  input[type='radio']:focus,
+  input[type='checkbox']:focus {
+    outline-offset: 3px !important;
+    box-shadow: none !important;
+  }
   input::placeholder,
   textarea::placeholder {
     color: var(--color-ink-3);
   }
-
+  /* Centred, as browsers do by default (the reset removes the auto margin) */
+  dialog {
+    margin: auto;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    overflow: visible;
+  }
   dialog::backdrop {
     background: var(--color-scrim);
   }
-
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -295,24 +294,220 @@
   }
 }
 
+@layer components {
+  /* Skip links: hidden until they get the keyboard focus */
+  .skip-link {
+    position: absolute;
+    left: 12px;
+    top: -400px;
+    z-index: 200;
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: var(--color-bg) !important;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .skip-link:focus {
+    top: 12px;
+  }
+  /* A group of radio buttons says how to move between its options while one has the keyboard focus */
+  .arrow-hint {
+    display: none;
+  }
+  fieldset:has(input[type='radio']:focus-visible) .arrow-hint {
+    display: flex;
+  }
+  /* The calendar button: a real button over the native date picker */
+  .calendar {
+    cursor: pointer;
+  }
+  .calendar:hover {
+    border-color: var(--color-orange) !important;
+  }
+  .calendar:focus-within {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 6px var(--color-focus-halo);
+  }
+  .calendar > input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .calendar > input::-webkit-calendar-picker-indicator {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+  .calendar > button {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+  }
+  .calendar > button:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  /* A file drop area shows the focus of the hidden file input */
+  .dropzone:focus-within {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  /* Selectable cards */
+  .choice-card:hover {
+    border-color: var(--color-orange) !important;
+  }
+  /* A button filling its row keeps its focus ring inside */
+  .focus-inside:focus-visible {
+    outline-offset: -5px !important;
+    box-shadow: none !important;
+  }
+  .error-line > svg {
+    margin-top: 2px;
+  }
+  /* In the colour-blind modes each step of the progress line also shows its number */
+  .step-number {
+    display: none;
+  }
+  [data-a11y~='dalt'] .step-number {
+    display: block;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  [data-a11y~='dalt'] .step-dot-now {
+    border-width: 3px !important;
+    color: var(--color-ink);
+  }
+  [data-a11y~='dalt'] .step-dot-next {
+    width: 28px !important;
+    height: 28px !important;
+    border-width: 2px !important;
+    border-color: var(--color-field) !important;
+    color: var(--color-ink-2);
+  }
+}
+
 /*
- * Accessibility menu. Palettes replace the colour tokens; contrast and dark
- * replace everything, colour-blind modes only the accent and status colours.
- * Values are those of the mockup's accessibility component.
+ * Brand theme · Câmara Municipal de Aveiro: the blue of the ria (#0087B1) of
+ * the council's identity, the white of the salt and the blue of the links of
+ * cm-aveiro.pt. High contrast and dark mode take priority over it.
  */
+html[data-tema='cma'] {
+  --color-bg: #f8fbfd;
+  --color-panel: #ffffff;
+  --color-ink: #0e2230;
+  --color-ink-2: #33495a;
+  --color-ink-3: #5a6b78;
+  --color-line: #dce7ef;
+  --color-line-strong: #bfd3e0;
+  --color-field: #7a8c99;
+  --color-soft: #e8f3f8;
+  --color-tint: #f2f8fb;
+  --color-soft-hover: #e6f3f8;
+  --color-accent-soft: #dbeff6;
+  --color-chip: #e1ecf2;
+  --color-orange: #0087b1;
+  --color-yellow: #4fb3d3;
+  --color-accent-ink: #00698c;
+  --color-brand-from: #007da5;
+  --color-brand-to: #005b7d;
+  --color-on-brand: #ffffff;
+  --color-focus: #0e2230;
+  --color-focus-halo: #ffffff;
+  --color-focus-ring: rgb(0 135 177 / 0.2);
+  --color-footer: #0b2533;
+  --color-footer-ink: #ffffff;
+  --color-footer-head: #ffffff;
+  --color-a11y-btn: #0b2533;
+  --color-a11y-btn-ink: #ffffff;
+  --color-sombra: rgb(0 95 128 / 0.3);
+  --login-bg:
+    radial-gradient(1100px 680px at 92% -10%, rgb(0 135 177 / 0.2), transparent 62%),
+    radial-gradient(900px 640px at -14% 58%, rgb(97 144 200 / 0.12), transparent 60%),
+    linear-gradient(180deg, #f8fbfd 0%, #eef6fa 100%);
+}
+
+/*
+ * Accessibility menu. Colour-blind modes adjust the accent and status colours
+ * of the theme; high contrast and dark replace everything.
+ */
+html[data-cor='vermelho-verde'] {
+  --color-orange: #0a62b0;
+  --color-yellow: #56b4e9;
+  --color-accent-ink: #0a55a0;
+  --color-brand-from: #1f73c4;
+  --color-brand-to: #0a55a0;
+  --color-on-brand: #ffffff;
+  --color-accent-soft: #e3eefa;
+  --color-soft-hover: #eef5fd;
+  --color-focus-ring: rgb(10 98 176 / 0.2);
+  --color-sombra: rgb(10 85 160 / 0.3);
+  --color-success: #0a55a0;
+  --color-success-soft: #e3eefa;
+  --color-info: #5b3a8c;
+  --color-info-soft: #efe7f8;
+  --color-warning: #5f4b00;
+  --color-warning-soft: #fbf0b5;
+  --color-error: #a33f00;
+  --color-error-soft: #fde6d6;
+  --login-bg:
+    radial-gradient(1100px 680px at 92% -10%, rgb(86 180 233 / 0.22), transparent 62%),
+    linear-gradient(180deg, #fffdfa 0%, #f4f8fc 100%);
+}
+html[data-cor='azul-amarelo'] {
+  --color-orange: #b8134f;
+  --color-yellow: #e8789f;
+  --color-accent-ink: #a10f45;
+  --color-brand-from: #d0336f;
+  --color-brand-to: #a10f45;
+  --color-on-brand: #ffffff;
+  --color-accent-soft: #fbe6ee;
+  --color-soft-hover: #fdf0f4;
+  --color-focus-ring: rgb(184 19 79 / 0.18);
+  --color-sombra: rgb(160 15 69 / 0.28);
+  --color-success: #1f6b3f;
+  --color-success-soft: #e2f2e7;
+  --color-info: #7a2a5c;
+  --color-info-soft: #f7e6f0;
+  --color-warning: #8a3f00;
+  --color-warning-soft: #ffe2cc;
+  --color-error: #a1251b;
+  --color-error-soft: #fde3e1;
+  --login-bg:
+    radial-gradient(1100px 680px at 92% -10%, rgb(232 120 159 / 0.2), transparent 62%),
+    linear-gradient(180deg, #fffdfa 0%, #fdf4f6 100%);
+}
 html[data-cor='contraste'] {
   --color-bg: #ffffff;
   --color-panel: #ffffff;
   --color-soft: #ffffff;
   --color-tint: #ffffff;
   --color-soft-hover: #fff3b0;
-  --color-selected: #fff3b0;
   --color-accent-soft: #fff3b0;
-  --color-highlight: #fff3b0;
+  --color-chip: #ffffff;
   --color-line: #000000;
   --color-line-strong: #000000;
-  --color-line-muted: #000000;
   --color-field: #000000;
+  --color-edge: #000000;
   --color-ink: #000000;
   --color-ink-2: #000000;
   --color-ink-3: #1a1a1a;
@@ -324,19 +519,24 @@ html[data-cor='contraste'] {
   --color-accent-ink: #0000b4;
   --color-success: #005a1f;
   --color-success-soft: #ffffff;
-  --color-success-tint: #ffffff;
   --color-warning: #5c3d00;
   --color-warning-soft: #ffffff;
   --color-error: #a00000;
   --color-error-soft: #ffffff;
   --color-info: #00338c;
   --color-info-soft: #ffffff;
-  --color-changed: #5c3d00;
-  --color-changed-soft: #ffffff;
+  --color-on-status: #ffffff;
+  --color-focus: #000000;
+  --color-focus-halo: #ffd400;
+  --color-focus-ring: rgb(218 98 2 / 0.16);
   --color-footer: #000000;
-  --color-on-dark: #ffffff;
+  --color-footer-ink: #ffffff;
+  --color-footer-head: #ffffff;
+  --color-a11y-btn: #17130e;
+  --color-a11y-btn-ink: #ffffff;
+  --color-sombra: rgb(0 0 0 / 0.4);
+  --login-bg: linear-gradient(#ffffff, #ffffff);
 }
-
 html[data-cor='escuro'] {
   color-scheme: dark;
   --color-bg: #000000;
@@ -344,13 +544,12 @@ html[data-cor='escuro'] {
   --color-soft: #161616;
   --color-tint: #0b0b0b;
   --color-soft-hover: #262000;
-  --color-selected: #332b00;
   --color-accent-soft: #332b00;
-  --color-highlight: #262000;
+  --color-chip: #000000;
   --color-line: #8a8a8a;
   --color-line-strong: #ffffff;
-  --color-line-muted: #8a8a8a;
   --color-field: #ffffff;
+  --color-edge: #ffffff;
   --color-ink: #ffffff;
   --color-ink-2: #ffffff;
   --color-ink-3: #e0e0e0;
@@ -362,63 +561,30 @@ html[data-cor='escuro'] {
   --color-accent-ink: #ffe066;
   --color-success: #7dffa0;
   --color-success-soft: #002b10;
-  --color-success-tint: #002b10;
   --color-warning: #ffd400;
   --color-warning-soft: #2b2300;
   --color-error: #ff9a8f;
   --color-error-soft: #330a06;
   --color-info: #9fd0ff;
   --color-info-soft: #001f3d;
-  --color-changed: #ffd400;
-  --color-changed-soft: #2b2300;
-  --color-footer: #000000;
-  --color-on-dark: #ffffff;
   --color-on-status: #000000;
+  --color-focus: #ffd400;
+  --color-focus-halo: #000000;
+  --color-focus-ring: rgb(255 212 0 / 0.3);
+  --color-footer: #000000;
+  --color-footer-ink: #ffffff;
+  --color-footer-head: #ffffff;
+  --color-on-dark: #ffffff;
+  --color-a11y-btn: #ffd400;
+  --color-a11y-btn-ink: #000000;
+  --color-sombra: rgb(166 75 0 / 0.35);
   --color-scrim: rgb(0 0 0 / 0.7);
+  --login-bg: linear-gradient(#000000, #000000);
 }
-
-html[data-cor='vermelho-verde'] {
-  --color-orange: #0a62b0;
-  --color-yellow: #56b4e9;
-  --color-brand-from: #1f73c4;
-  --color-brand-to: #0a55a0;
-  --color-on-brand: #ffffff;
-  --color-accent-ink: #0a55a0;
-  --color-selected: #e3eefa;
-  --color-accent-soft: #e3eefa;
-  --color-soft-hover: #eef5fd;
-  --color-success: #0a55a0;
-  --color-success-soft: #e3eefa;
-  --color-info: #5b3a8c;
-  --color-info-soft: #efe7f8;
-  --color-warning: #5f4b00;
-  --color-warning-soft: #fbf0b5;
-  --color-error: #a33f00;
-  --color-error-soft: #fde6d6;
-}
-
-html[data-cor='azul-amarelo'] {
-  --color-orange: #b8134f;
-  --color-yellow: #e8789f;
-  --color-brand-from: #d0336f;
-  --color-brand-to: #a10f45;
-  --color-on-brand: #ffffff;
-  --color-accent-ink: #a10f45;
-  --color-selected: #fbe6ee;
-  --color-accent-soft: #fbe6ee;
-  --color-soft-hover: #fdf0f4;
-  --color-info: #7a2a5c;
-  --color-info-soft: #f7e6f0;
-  --color-warning: #8a3f00;
-  --color-warning-soft: #ffe2cc;
-  --color-error: #a1251b;
-  --color-error-soft: #fde3e1;
-}
-
-/* With every fill turned white or black, chips keep a visible outline */
-html[data-cor='contraste'] [data-chip],
-html[data-cor='escuro'] [data-chip] {
-  box-shadow: inset 0 0 0 1px currentColor;
+/* In high contrast and dark mode, links in menus are underlined too */
+html[data-cor='contraste'] nav a:not([data-button]),
+html[data-cor='escuro'] nav a:not([data-button]) {
+  text-decoration: underline;
 }
 
 [data-a11y~='esp1'] * {
@@ -442,15 +608,15 @@ html[data-cor='escuro'] [data-chip] {
 [data-a11y~='lh3'] * {
   line-height: 2 !important;
 }
-[data-a11y~='links'] a {
+[data-a11y~='links'] a:not(.skip-link) {
   text-decoration: underline !important;
   text-decoration-thickness: 2px !important;
   text-underline-offset: 3px !important;
   outline: 2px dashed var(--color-orange);
   outline-offset: 2px;
 }
-[data-a11y~='dalt'] a {
-  text-decoration: underline;
+[data-a11y~='dalt'] a:not([data-button]):not(.skip-link) {
+  text-decoration: underline !important;
   text-underline-offset: 3px;
 }
 [data-a11y~='fonte-legivel'],
@@ -461,8 +627,11 @@ html[data-cor='escuro'] [data-chip] {
 [data-a11y~='fonte-dislexia'] * {
   font-family: var(--font-dyslexia) !important;
 }
-[data-a11y~='foco'] :focus-visible {
-  outline: 5px solid var(--color-ink) !important;
+[data-a11y~='foco'] :focus-visible,
+[data-a11y~='foco'] input:focus,
+[data-a11y~='foco'] select:focus,
+[data-a11y~='foco'] textarea:focus {
+  outline: 5px solid var(--color-focus) !important;
   outline-offset: 3px !important;
   box-shadow: 0 0 0 11px #ffd400 !important;
 }
