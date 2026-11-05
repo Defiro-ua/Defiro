@@ -39,7 +39,7 @@
 
     <build>
         <plugins>
-            <!-- The id carries the version so several versions of a plugin can be loaded at once (architecture §7.3 rule 3). -->
+            <!-- The id carries the version so several versions of a plugin can be loaded at once -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

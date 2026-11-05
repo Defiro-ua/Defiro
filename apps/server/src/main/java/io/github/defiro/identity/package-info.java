@@ -1,5 +1,5 @@
 /**
- * Identity: the only module that talks to the Identity Provider (architecture §4, §8.1).
+ * Identity: the only module that talks to the Identity Provider.
  */
 @ApplicationModule(
     displayName = "Identity",

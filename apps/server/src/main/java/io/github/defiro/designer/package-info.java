@@ -1,6 +1,6 @@
 /**
- * Workflow Designer: drafts, validating workflows against every rule, publishing specifications
- * (architecture §4, §6). May use only the Engine's Deployment interface and the Plugin Registry.
+ * Workflow Designer: drafts, validating workflows against every rule, publishing specifications.
+ * May use only the Engine's Deployment interface and the Plugin Registry.
  */
 @ApplicationModule(
     displayName = "Workflow Designer",
