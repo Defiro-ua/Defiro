@@ -24,16 +24,34 @@ jobs:
       id-token: write
 
     steps:
+      # Each member stores their own token as the secret CLAUDE_TOKEN_<github user id>
+      # (get the id with: gh api users/<login> --jq .id). No token = no review.
+      - name: Check for PR author's Claude token
+        id: token
+        env:
+          TOKEN: ${{ secrets[format('CLAUDE_TOKEN_{0}', github.event.pull_request.user.id)] }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          AUTHOR_ID: ${{ github.event.pull_request.user.id }}
+        run: |
+          if [ -n "$TOKEN" ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::No CLAUDE_TOKEN_${AUTHOR_ID} secret for ${AUTHOR}; skipping Claude review."
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout repository
+        if: steps.token.outputs.found == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
 
       - name: Run Claude Code Review
         id: claude-review
+        if: steps.token.outputs.found == 'true'
         uses: anthropics/claude-code-action@c0949c50a78c1ec8ce2647db36629b870e715d0c # v1
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_code_oauth_token: ${{ secrets[format('CLAUDE_TOKEN_{0}', github.event.pull_request.user.id)] }}
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
           prompt: '/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
