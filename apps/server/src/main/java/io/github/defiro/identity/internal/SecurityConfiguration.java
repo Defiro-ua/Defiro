@@ -25,7 +25,11 @@ class SecurityConfiguration {
                 .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                 .anyRequest().authenticated())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // Safe without CSRF protection: browsers never attach bearer tokens on their own.
+            // CSRF protection is off because credentials only arrive in the Authorization header,
+            // which browsers never attach on their own. Turn it back on if the API ever accepts
+            // credentials the browser sends automatically: a session or token cookie, HTTP basic
+            // or digest authentication, a login form, or client certificates (mTLS).
+            // See https://www.baeldung.com/csrf-stateless-rest-api
             .csrf(AbstractHttpConfigurer::disable);
         if (jwtDecoder.getIfAvailable() != null) {
             http.oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
