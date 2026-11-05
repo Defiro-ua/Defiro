@@ -30,6 +30,13 @@
         <pf4j.version>3.15.1</pf4j.version>
         <!-- CVE-2026-110879 is fixed in 3.1.8; Boot 4.1.2 ships 3.1.7. Remove once Boot manages >= 3.1.8. -->
         <jackson-bom.version>3.1.8</jackson-bom.version>
+        <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
+        <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
+
+        <!-- SonarQube Cloud. After importing the repository, check these keys against the project's Information page. -->
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.organization>defiro-ua</sonar.organization>
+        <sonar.projectKey>Defiro-ua_Defiro</sonar.projectKey>
     </properties>
 
     <modules>
@@ -48,4 +55,37 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonar-maven-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <!-- Test coverage for SonarQube: each module writes target/site/jacoco/jacoco.xml during verify. -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

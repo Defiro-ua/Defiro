@@ -17,8 +17,12 @@ jobs:
     name: Build and test
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # SonarQube uses the full history to tell new code from old
 
       - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
@@ -29,3 +33,17 @@ jobs:
       # Testcontainers uses the runner's Docker for the database tests.
       - name: Build and test
         run: ./mvnw -B verify
+
+      # The SonarQube steps are skipped until the SONAR_TOKEN secret exists,
+      # and on pull requests from forks and Dependabot, which can't read it.
+      - name: Cache SonarQube packages
+        if: env.SONAR_TOKEN != ''
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: SonarQube Cloud analysis
+        if: env.SONAR_TOKEN != ''
+        run: ./mvnw -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
