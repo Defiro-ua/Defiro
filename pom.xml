@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.2</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>io.github.defiro</groupId>
+    <artifactId>defiro-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>defiro</name>
+
+    <licenses>
+        <license>
+            <name>EUPL-1.2</name>
+            <url>https://interoperable-europe.ec.europa.eu/collection/eupl/eupl-text-eupl-12</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <properties>
+        <java.version>21</java.version>
+        <pf4j.version>3.15.1</pf4j.version>
+        <!-- CVE-2026-110879 is fixed in 3.1.8; Boot 4.1.2 ships 3.1.7. Remove once Boot manages >= 3.1.8. -->
+        <jackson-bom.version>3.1.8</jackson-bom.version>
+    </properties>
+
+    <modules>
+        <module>packages/spec</module>
+        <module>packages/plugin-sdk</module>
+        <module>apps/server</module>
+        <module>plugins</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.pf4j</groupId>
+                <artifactId>pf4j</artifactId>
+                <version>${pf4j.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
