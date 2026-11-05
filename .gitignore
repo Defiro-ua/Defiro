@@ -1,0 +1,8 @@
+target/
+.idea/*
+!.idea/copyright/
+*.iml
+node_modules/
+dist/
+.env
+*.local
