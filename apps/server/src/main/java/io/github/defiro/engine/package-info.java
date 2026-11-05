@@ -1,5 +1,5 @@
 /**
- * Workflow Engine: runs procedure instances and hosts plugins (architecture §4, §5).
+ * Workflow Engine: runs procedure instances and hosts plugins.
  */
 @ApplicationModule(
     displayName = "Workflow Engine",

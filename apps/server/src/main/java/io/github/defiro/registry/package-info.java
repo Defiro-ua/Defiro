@@ -1,5 +1,5 @@
 /**
- * Plugin Registry: catalogue and packages of every plugin@version (architecture §4).
+ * Plugin Registry: catalogue and packages of every plugin@version.
  */
 @ApplicationModule(
     displayName = "Plugin Registry",
