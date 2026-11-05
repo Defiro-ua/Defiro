@@ -26,6 +26,17 @@ Check it's up at <http://localhost:8080/actuator/health>.
 
 In IntelliJ IDEA, open the folder, set the project SDK to 21 (**File → Project Structure**), and run `DefiroApplication`. To skip the compose step, run `TestDefiroApplication` (in `apps/server/src/test`) instead: it starts its own throwaway Postgres.
 
+### Sign-in
+
+The server accepts tokens from any OpenID Connect provider (Microsoft Entra ID, Keycloak, Auth0 and others). Point it at one with environment variables:
+
+| Variable | Example for Microsoft Entra ID |
+|---|---|
+| `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI` | `https://login.microsoftonline.com/<tenant-id>/v2.0` |
+| `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES` | the server's app registration, such as `api://defiro` |
+
+Without an issuer, nobody can sign in: only `/actuator/health` answers, and every other request is refused.
+
 ## Project layout
 
 | Path | What it is |
