@@ -34,8 +34,10 @@ jobs:
       - name: Build and test
         run: ./mvnw -B verify
 
-      # The SonarQube steps are skipped until the SONAR_TOKEN secret exists,
-      # and on pull requests from forks and Dependabot, which can't read it.
+      # SONAR_TOKEN is both an Actions secret and a Dependabot secret, so team and Dependabot
+      # pull requests are analysed. The SonarQube steps are skipped only on pull requests from
+      # forks, which can't read secrets; "SonarCloud Code Analysis" is required on main, so
+      # those need a maintainer to run the analysis.
       - name: Cache SonarQube packages
         if: env.SONAR_TOKEN != ''
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
