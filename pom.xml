@@ -27,7 +27,7 @@
 
     <properties>
         <java.version>21</java.version>
-        <pf4j.version>3.15.1</pf4j.version>
+        <pf4j.version>3.16.0</pf4j.version>
         <!-- CVE-2026-110879 is fixed in 3.1.8; Boot 4.1.2 ships 3.1.7. Remove once Boot manages >= 3.1.8. -->
         <jackson-bom.version>3.1.8</jackson-bom.version>
         <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
