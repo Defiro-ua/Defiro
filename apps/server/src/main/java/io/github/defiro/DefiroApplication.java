@@ -9,5 +9,4 @@ public class DefiroApplication {
     public static void main(String[] args) {
         SpringApplication.run(DefiroApplication.class, args);
     }
-
 }
