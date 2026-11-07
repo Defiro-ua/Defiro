@@ -1,6 +1,8 @@
 target/
 .idea/*
 !.idea/copyright/
+!.idea/externalDependencies.xml
+!.idea/palantir-java-format.xml
 *.iml
 node_modules/
 dist/

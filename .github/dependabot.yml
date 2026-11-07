@@ -4,6 +4,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Version updates wait 7 days after a release, so a compromised release is usually
+    # caught and pulled before it reaches us. Security updates are never delayed.
+    cooldown:
+      default-days: 7
     groups:
       maven-minor-and-patch:
         update-types: [minor, patch]
@@ -12,3 +16,5 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7

@@ -15,5 +15,4 @@ class TestcontainersConfiguration {
         // Same version as deploy/compose.yaml
         return new PostgreSQLContainer(DockerImageName.parse("postgres:17"));
     }
-
 }
