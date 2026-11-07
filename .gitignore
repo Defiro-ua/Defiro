@@ -1,6 +1,7 @@
 target/
 .idea/*
 !.idea/copyright/
+!.idea/externalDependencies.xml
 *.iml
 node_modules/
 dist/
