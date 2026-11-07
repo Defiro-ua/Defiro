@@ -25,7 +25,7 @@ is_rating_a() {
     jq -e '[.component.measures[]? | select(.metric == "security_rating") | .value] == ["1.0"]' >/dev/null
 }
 
-if [ "${1:-}" = "--evaluate" ]; then
+if [[ "${1:-}" == "--evaluate" ]]; then
     is_rating_a
     exit
 fi
@@ -34,7 +34,7 @@ project=${SONAR_PROJECT_KEY:?SONAR_PROJECT_KEY is required}
 branch=${SONAR_BRANCH:-main}
 host=${SONAR_HOST_URL:-https://sonarcloud.io}
 auth=()
-if [ -n "${SONAR_TOKEN:-}" ]; then
+if [[ -n "${SONAR_TOKEN:-}" ]]; then
     auth=(-u "$SONAR_TOKEN:")
 fi
 
@@ -55,7 +55,7 @@ fi
 
 rating=$(printf '%s' "$measures" | jq -r '[.component.measures[]? | select(.metric == "security_rating") | .value][0] // "none"')
 echo "::error::Overall code of $project ($branch) must have security rating A (1.0); SonarQube reports $rating. Fix the open security issues listed below."
-if [ "${GITHUB_EVENT_NAME:-}" = "pull_request" ]; then
+if [[ "${GITHUB_EVENT_NAME:-}" == "pull_request" ]]; then
     # Otherwise the pull request that fixes these issues could never pass this check.
     echo "::error::These issues are on $branch, not in this pull request's changes. If this pull request fixes them, a maintainer can mark each issue as Accepted in SonarQube Cloud, with the reason, and re-run this job; the issues close when the fix reaches $branch."
 fi
