@@ -1,5 +1,10 @@
 # Defiro
 
+[![CI](https://github.com/Defiro-ua/defiro/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Defiro-ua/defiro/actions/workflows/ci.yml?query=branch%3Amain)
+[![Quality gate](https://sonarcloud.io/api/project_badges/measure?project=Defiro-ua_Defiro&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Defiro-ua_Defiro)
+[![Security rating](https://sonarcloud.io/api/project_badges/measure?project=Defiro-ua_Defiro&metric=security_rating)](https://sonarcloud.io/summary/overall?id=Defiro-ua_Defiro)
+[![License: EUPL-1.2](https://img.shields.io/badge/license-EUPL--1.2-blue)](LICENSE)
+
 Designs and runs administrative workflows for municipalities, such as a travel expenses reimbursement procedure.
 
 ## Getting started
@@ -15,8 +20,8 @@ You don't need to install Maven: the repository includes the Maven wrapper (`./m
 ### Build and run
 
 ```bash
-git clone https://github.com/Defiro-ua/Defiro.git
-cd Defiro
+git clone https://github.com/Defiro-ua/defiro.git
+cd defiro
 ./mvnw verify                                 # builds everything and runs the tests
 docker compose -f deploy/compose.yaml up -d   # local Postgres on port 5432
 java -jar apps/server/target/server-0.1.0-SNAPSHOT.jar
@@ -56,4 +61,42 @@ Without an issuer, nobody can sign in: only `/actuator/health` answers, and ever
 
 ## Quality checks
 
-Every pull request runs `./mvnw verify` in GitHub Actions and is analysed by SonarQube Cloud. To see the same issues while you code, install the **SonarQube for IDE** plugin in IntelliJ. Dependabot opens pull requests for outdated or vulnerable dependencies.
+Every pull request and every push to `main` runs the CI workflow. Each stage starts only when the one before it is green, and a pull request can merge only when every check passes.
+
+| Stage | Check | What it does |
+|---|---|---|
+| Commit | **Commit · server** | Checks formatting, builds, and runs the unit tests (`*Test`). Needs no Docker. |
+| | **Workflow lint** | Tests the CI scripts and checks every workflow with zizmor. |
+| | **Dependency review** | Fails a pull request that adds a dependency with a known vulnerability. |
+| Acceptance | **Acceptance** | Runs the integration tests (`*IT`) against PostgreSQL in Testcontainers. |
+| Quality | **Quality gate** | Analyses the code in SonarQube Cloud, with the coverage of both test stages. |
+
+The quality gate is **Sonar way** (no new issues, at least 80% coverage and at most 3% duplication on new code) plus **security rating A on the overall code**. SonarQube Cloud's free plan can't add that last condition to the gate, so CI checks it. Pull requests from forks can't read the SonarQube token, so the gate fails for them until a maintainer runs the analysis.
+
+Name a test after what it needs: `*Test` when a JDK is enough, `*IT` when it starts Docker containers.
+
+### Running the checks locally
+
+```bash
+./mvnw verify               # everything CI runs for the server; needs Docker
+./mvnw verify -DskipITs     # commit stage only: formatting, build and unit tests, no Docker
+./mvnw spotless:apply       # formats the Java code
+```
+
+Use JDK 21. If the formatting check fails with a `NoSuchFieldError` from `com.sun.tools.javac`, Maven is running on a JDK that palantir-java-format doesn't support yet.
+
+When a check is red, open the run from the pull request: the log names the failing test, and the test reports are in the run's artifacts.
+
+### In the editor
+
+IntelliJ offers to install **palantir-java-format**, so *Reformat Code* gives the same result as CI, and **SonarQube for IDE**, which then offers to bind to the SonarQube Cloud project and flags the same issues while you code.
+
+The repository stores text files with LF line endings. On Windows, if the formatting check reports files you didn't change, your working copy still has CRLF line endings. Commit or stash your work, then refresh it once:
+
+```bash
+git rm -rq --cached . && git reset -q --hard
+```
+
+### Dependencies
+
+Dependabot opens pull requests for outdated or vulnerable dependencies. Version updates wait 7 days after a release, so a compromised release is usually caught before it reaches us; security updates come straight away.
