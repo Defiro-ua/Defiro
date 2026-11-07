@@ -54,7 +54,11 @@ if printf '%s' "$measures" | is_rating_a; then
 fi
 
 rating=$(printf '%s' "$measures" | jq -r '[.component.measures[]? | select(.metric == "security_rating") | .value][0] // "none"')
-echo "::error::Overall code of $project ($branch) must have security rating A (1.0); SonarQube reports $rating. Fix the open security issues first."
+echo "::error::Overall code of $project ($branch) must have security rating A (1.0); SonarQube reports $rating. Fix the open security issues listed below."
+if [ "${GITHUB_EVENT_NAME:-}" = "pull_request" ]; then
+    # Otherwise the pull request that fixes these issues could never pass this check.
+    echo "::error::These issues are on $branch, not in this pull request's changes. If this pull request fixes them, a maintainer can mark each issue as Accepted in SonarQube Cloud, with the reason, and re-run this job; the issues close when the fix reaches $branch."
+fi
 
 # List the open security issues, so the failure says what to fix.
 if issues=$(api issues/search --data-urlencode "componentKeys=$project" --data-urlencode "branch=$branch" \

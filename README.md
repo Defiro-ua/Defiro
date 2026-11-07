@@ -71,7 +71,7 @@ Every pull request and every push to `main` runs the CI workflow. Each stage sta
 | Acceptance | **Acceptance** | Runs the integration tests (`*IT`) against PostgreSQL in Testcontainers. |
 | Quality | **Quality gate** | Analyses the code in SonarQube Cloud, with the coverage of both test stages. |
 
-The quality gate is **Sonar way** (no new issues, at least 80% coverage and at most 3% duplication on new code) plus **security rating A on the overall code**. SonarQube Cloud's free plan can't add that last condition to the gate, so CI checks it. Pull requests from forks can't read the SonarQube token, so the gate fails for them until a maintainer runs the analysis.
+The quality gate is **Sonar way** (no new issues, at least 80% coverage and at most 3% duplication on new code) plus **security rating A on the overall code**. SonarQube Cloud's free plan can't add that last condition to the gate, so CI checks it, on `main`'s code. If `main` loses its A (for example when SonarQube adds a rule that finds an issue in existing code), every pull request fails the gate until it's fixed: to merge the fix, a maintainer marks the listed issues as Accepted in SonarQube Cloud, with the reason, and re-runs the gate. Pull requests from forks can't read the SonarQube token, so the gate fails for them until a maintainer runs the analysis.
 
 Name a test after what it needs: `*Test` when a JDK is enough, `*IT` when it starts Docker containers.
 
