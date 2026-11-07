@@ -59,6 +59,51 @@ jobs:
           path: '**/target/surefire-reports/'
           if-no-files-found: warn
 
+  # Not in any job's needs: Dependency review doesn't run on pushes to main, and a job that
+  # needs a skipped job is skipped too. Both are required checks on their own.
+  workflow-lint:
+    name: Workflow lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Test the CI scripts
+        run: bash .github/scripts/check-security-rating.test.sh
+
+      - name: Lint the CI scripts
+        run: shellcheck .github/scripts/*.sh
+
+      # Reports findings as annotations and fails on them. (With advanced-security, zizmor uploads
+      # SARIF and always exits 0, so it would never block a merge.)
+      - uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
+        with:
+          version: 1.31.1 # the action installs the latest zizmor unless told otherwise
+          advanced-security: false
+          annotations: true
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Fails when the pull request adds or upgrades to a dependency with a known vulnerability
+      # of any severity.
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: low
+
   acceptance:
     name: Acceptance
     needs: [commit-server]
