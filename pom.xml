@@ -38,7 +38,6 @@
         <!-- Unit tests (*Test, Surefire) need only a JDK; integration tests (*IT, Failsafe) need Docker.
              -DskipITs runs only the unit tests, -DskipUTs only the integration tests. -->
         <skipUTs>false</skipUTs>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml,${project.build.directory}/site/jacoco-it/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- SonarQube Cloud. After importing the repository, check these keys against the project's Information page. -->
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
