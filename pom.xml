@@ -35,6 +35,11 @@
         <spotless-maven-plugin.version>3.10.4</spotless-maven-plugin.version>
         <palantir-java-format.version>2.103.0</palantir-java-format.version>
 
+        <!-- Unit tests (*Test, Surefire) need only a JDK; integration tests (*IT, Failsafe) need Docker.
+             -DskipITs runs only the unit tests, -DskipUTs only the integration tests. -->
+        <skipUTs>false</skipUTs>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml,${project.build.directory}/site/jacoco-it/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+
         <!-- SonarQube Cloud. After importing the repository, check these keys against the project's Information page. -->
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>defiro-ua</sonar.organization>
@@ -66,10 +71,19 @@
                     <artifactId>sonar-maven-plugin</artifactId>
                     <version>${sonar-maven-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <!-- skip, not skipTests: -DskipTests still skips both kinds of test -->
+                        <skip>${skipUTs}</skip>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
-            <!-- Test coverage for SonarQube: each module writes target/site/jacoco/jacoco.xml during verify. -->
+            <!-- Test coverage for SonarQube: during verify, each module writes target/site/jacoco/jacoco.xml
+                 for the unit tests and target/site/jacoco-it/jacoco.xml for the integration tests. -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -86,7 +100,24 @@
                             <goal>report</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report-integration</id>
+                        <goals>
+                            <goal>report-integration</goal>
+                        </goals>
+                    </execution>
                 </executions>
+            </plugin>
+            <!-- Runs the *IT classes; Spring Boot's parent POM configures its goals. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
             <!-- Java formatting: verify fails on unformatted code; ./mvnw spotless:apply fixes it. -->
             <plugin>

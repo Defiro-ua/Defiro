@@ -29,10 +29,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 // Plays the identity provider: the app trusts tokens signed with TRUSTED_KEY, and the tests sign
 // real tokens that go through the bearer-token filter and the decoder.
-@Import({TestcontainersConfiguration.class, SecurityTests.TrustedIssuer.class})
+@Import({TestcontainersConfiguration.class, SecurityIT.TrustedIssuer.class})
 @SpringBootTest
 @AutoConfigureMockMvc
-class SecurityTests {
+class SecurityIT {
 
     static final RSAKey TRUSTED_KEY = newKey();
     static final RSAKey OTHER_KEY = newKey();
