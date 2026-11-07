@@ -24,6 +24,15 @@ java -jar apps/server/target/server-0.1.0-SNAPSHOT.jar
 
 Check it's up at <http://localhost:8080/actuator/health>.
 
+### Web app
+
+```bash
+docker compose -f deploy/compose.yaml up -d --build web          # http://localhost:3000
+docker compose -f deploy/compose.yaml --profile dev up web-dev   # live reload at http://localhost:5173
+```
+
+Or, with Node installed, `npm install` and `npm run dev` in `apps/web`. See `apps/web/README.md`.
+
 In IntelliJ IDEA, open the folder, set the project SDK to 21 (**File → Project Structure**), and run `DefiroApplication`. To skip the compose step, run `TestDefiroApplication` (in `apps/server/src/test`) instead: it starts its own throwaway Postgres.
 
 ### Sign-in
@@ -46,7 +55,7 @@ Without an issuer, nobody can sign in: only `/actuator/health` answers, and ever
 | `packages/spec` | Specification model, plain Java |
 | `packages/plugin-sdk` | The interface plugins implement, plain Java |
 | `plugins/` | Built-in plugins, loaded at runtime from the Plugin Registry |
-| `deploy/compose.yaml` | Local Postgres |
+| `deploy/compose.yaml` | Local Postgres and the web app |
 
 ## Rules to know before writing code
 
