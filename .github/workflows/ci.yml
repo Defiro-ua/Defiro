@@ -82,7 +82,6 @@ jobs:
       # SARIF and always exits 0, so it would never block a merge.)
       - uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
         with:
-          version: 1.31.1 # the action installs the latest zizmor unless told otherwise
           advanced-security: false
           annotations: true
 
