@@ -73,10 +73,15 @@ jobs:
           persist-credentials: false
 
       - name: Test the CI scripts
-        run: bash .github/scripts/check-security-rating.test.sh
+        run: |
+          for test in .github/scripts/*.test.sh; do
+            echo "::group::$test"
+            bash "$test"
+            echo "::endgroup::"
+          done
 
       - name: Lint the CI scripts
-        run: shellcheck .github/scripts/*.sh
+        run: shellcheck -x .github/scripts/*.sh
 
       # Reports findings as annotations and fails on them. (With advanced-security, zizmor uploads
       # SARIF and always exits 0, so it would never block a merge.)
@@ -212,6 +217,15 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./mvnw -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.qualitygate.wait=true
+
+      # Sonar way on SonarQube Cloud judges new code by ratings, which let minor issues through.
+      - name: Pull request adds no new issues
+        if: github.event_name == 'pull_request'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: Defiro-ua_Defiro
+          SONAR_PULL_REQUEST: ${{ github.event.pull_request.number }}
+        run: .github/scripts/check-new-issues.sh
 
       - name: Overall code has security rating A
         env:

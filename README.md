@@ -71,7 +71,14 @@ Every pull request and every push to `main` runs the CI workflow. Each stage sta
 | Acceptance | **Acceptance** | Runs the integration tests (`*IT`) against PostgreSQL in Testcontainers. |
 | Quality | **Quality gate** | Analyses the code in SonarQube Cloud, with the coverage of both test stages. |
 
-The quality gate is **Sonar way** (no new issues, at least 80% coverage and at most 3% duplication on new code) plus **security rating A on the overall code**. SonarQube Cloud's free plan can't add that last condition to the gate, so CI checks it, on `main`'s code. If `main` loses its A (for example when SonarQube adds a rule that finds an issue in existing code), every pull request fails the gate until it's fixed: to merge the fix, a maintainer marks the listed issues as Accepted in SonarQube Cloud, with the reason, and re-runs the gate. Pull requests from forks can't read the SonarQube token, so the gate fails for them until a maintainer runs the analysis.
+The quality gate has two parts:
+
+- **On new code:** no new issues, at least 80% coverage, at most 3% duplication, and every new security hotspot reviewed.
+- **On the overall code:** security rating A.
+
+SonarQube Cloud's built-in **Sonar way** gate checks coverage, duplication and hotspots, but it judges new issues by ratings, so a few minor code smells would still pass it. Its free plan can't change the gate, so CI adds the other two conditions through SonarQube's API: a pull request fails if it adds any issue, and the gate fails if `main`'s code doesn't have security rating A. An issue you accept in SonarQube Cloud, with the reason, no longer counts as new.
+
+If `main` loses its A (for example when SonarQube adds a rule that finds an issue in existing code), every pull request fails the gate until it's fixed: to merge the fix, a maintainer marks the listed issues as Accepted in SonarQube Cloud, with the reason, and re-runs the gate. Pull requests from forks can't read the SonarQube token, so the gate fails for them until a maintainer runs the analysis.
 
 Name a test after what it needs: `*Test` when a JDK is enough, `*IT` when it starts Docker containers.
 
