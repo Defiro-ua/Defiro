@@ -170,24 +170,6 @@ Dependabot opens pull requests for outdated or vulnerable dependencies. Version 
 
 ---
 
-## Contributing
-
-Branch from `main`, named after the story you're working on, such as `UC18-reject-reasons`. Write the tests first, then open a pull request and fill in its template: what changed and why, and the Definition of Done. CI checks everything else, and a pull request merges only when every check is green.
-
-Reviewers read the tests first, and ask what would make them fail.
-
----
-
-## Contributors
-
-<a href="https://github.com/Defiro-ua/defiro/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Defiro-ua/defiro" alt="Defiro contributors" />
-</a>
-
-Made with [contrib.rocks](https://contrib.rocks).
-
----
-
 ## License
 
 Defiro is open source under the [European Union Public Licence v. 1.2](LICENSE) (EUPL-1.2).
