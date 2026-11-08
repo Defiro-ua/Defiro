@@ -1,0 +1,307 @@
+title defiro · MVP · Reimbursement procedure (travel expenses)
+
+actor "Workflow\nManager" as WM #FBE9D9
+actor "Requester" as REQ #FBE9D9
+actor "Reviewer" as REV #FBE9D9
+boundary "defiro\nweb app" as WEB
+control "Workflow\nDesigner" as DES
+database "Designer\nstore" as DDB
+participant "Plugin\nRegistry" as REG
+participantgroup #FFF5E3 **Workflow Engine (runtime)**
+control "Engine core" as ENG
+control "Plugin Host" as PM
+end
+database "Engine\nstore" as DB
+database "File\nstore" as FS
+participant "Identity Provider (IdP)\n«system»" as IDP #F0E6CC
+
+==1 · Workflow set-up · Workflow Manager (Workflow Designer)==
+
+group UC01 Authenticate (SSO)
+WM->WEB:Open defiro
+WEB-->WM:Redirect to the IdP sign-in page
+WM->IDP:Sign in with the municipal account
+IDP-->WEB:Redirect back with tokens
+WEB-->WM:Home page (role Workflow Manager)
+end
+note over WEB,ENG:The web app sends the user's access token on every call, and Designer and Engine check it (OIDC).\nCalls between services use the calling service's own token (client credentials).
+
+group UC03 Create workflow
+WM->WEB:Workflows, Create workflow
+WEB->DES:Create draft
+activate DES
+DES->DDB:Save draft
+DES-->WEB:Draft
+deactivate DES
+WEB->DES:Get available step types
+activate DES
+DES->REG:List plugins (name, version, config fields, outcomes)
+REG-->DES:Catalog (built-in and custom plugins)
+DES-->WEB:Step palette
+deactivate DES
+loop each step (request, manager validation, financial verification, final validation)
+WM->WEB:Add step, choose its type (plugin@version)
+group UC05 Assign a group or unit to each step [include]
+WEB->DES:Get groups and units
+activate DES
+DES->IDP:Query directory
+IDP-->DES:Groups and units
+DES-->WEB:Options
+deactivate DES
+WM->WEB:Choose who handles the step
+end
+group UC04 Define the form fields of each step [include]
+WM->WEB:Add fields (label, type, origin, required)
+end
+group UC06 Set legal deadlines for each step
+WM->WEB:Set deadline in days
+end
+end
+WM->WEB:Link steps (approved, returned, rejected)
+opt save and continue later
+WM->WEB:Save draft
+WEB->DES:Save draft
+activate DES
+DES->DDB:Update draft
+DES-->WEB:Saved
+deactivate DES
+end
+WM->WEB:Create workflow
+WEB->DES:Publish
+activate DES
+DES->DDB:Load draft
+DES->REG:Get descriptors of the plugins used
+REG-->DES:Descriptors (config fields, outcomes)
+DES->DES:Validate against every workflow rule
+alt invalid
+DES-->WEB:What is missing
+WEB-->WM:Show what is missing
+else valid
+DES->DES:Build specification\n(schemaVersion, steps, transitions, plugin@version)
+opt no valid service token in cache
+DES->IDP:Get service token (client credentials)
+IDP-->DES:Token that identifies the Designer
+end
+note over DES,ENG:The service token identifies the Designer, not the user.\nOnly the Designer may deploy, so every specification\nthe Engine receives went through validation.
+DES->ENG:Deploy specification\n(service token, publishedBy, draft id, revision)
+activate ENG
+ENG->DB:Store as a new immutable version\n(same draft id and revision: return the existing version)
+ENG-->DES:Deployed (version 1)
+deactivate ENG
+DES->DDB:Mark draft as published
+DES-->WEB:Published
+WEB-->WM:Workflow created and active
+end
+deactivate DES
+end
+
+==2 · Reimbursement request · Requester (Workflow Engine)==
+
+ref over REQ,IDP:UC01 Authenticate (SSO), same sequence as above
+
+group UC13 Start a procedure (instance)
+REQ->WEB:New request, Travel expenses
+WEB->ENG:Start procedure
+activate ENG
+ENG->DB:Load the latest version of the specification
+ENG->PM:Prepare the plugins of this specification
+activate PM
+loop each plugin@version in the specification
+opt not loaded yet
+opt package not in the local cache
+PM->REG:Pull package (plugin@version)
+REG-->PM:Package
+end
+PM->PM:Load plugin in isolation
+end
+end
+PM-->ENG:Plugins ready
+deactivate PM
+ENG->IDP:Get profile (name, unit, job, manager)
+IDP-->ENG:Profile
+ENG->DB:Create instance with its own copy of the specification
+note over ENG,DB:Later versions of the workflow only apply to new instances.\nThis instance runs to the end with the copy it keeps.
+ENG->PM:Submission plugin, open step
+PM-->ENG:Form of the step
+ENG-->WEB:Form, profile fields filled in and locked
+deactivate ENG
+REQ->WEB:Fill in NIF, IBAN, trip, expenses\nand certificate dates
+opt UC15 Attach supporting files (extend)
+REQ->WEB:Attach tickets, invoices,\nattendance certificate
+WEB->ENG:Upload files
+activate ENG
+ENG->FS:Store files
+ENG->DB:Link files to the instance
+ENG-->WEB:Files attached
+deactivate ENG
+end
+REQ->WEB:Submit request
+WEB->ENG:Submit
+activate ENG
+ENG->PM:Submission plugin, check the data
+PM-->ENG:Valid, or errors per field
+note over ENG,PM:If a plugin fails or times out, the action fails, the instance\nis unchanged, the failure is logged and the user can retry.
+alt invalid data
+ENG-->WEB:Errors per field
+WEB-->REQ:Fields to fix
+else valid
+ENG->ENG:Next step, read from the instance's copy
+ENG->PM:Review plugin, enter step (manager validation)
+PM-->ENG:Wait for a person, task for the\nmanagers of the requester's unit
+ENG->IDP:Resolve assignees (managers of the requester's unit)
+IDP-->ENG:Users
+ENG->DB:Save instance and data version 1,\ncreate task, log submitted
+ENG-->WEB:Submitted (AC-2026-0147)
+WEB-->REQ:Confirmation and progress
+end
+deactivate ENG
+end
+
+==3 · Review · Reviewer (unit manager, then Finance division)==
+
+ref over REV,IDP:UC01 Authenticate (SSO)
+
+loop each review step, until approved or finally rejected
+group UC27 View my task inbox
+REV->WEB:Task inbox
+WEB->ENG:Get my tasks
+activate ENG
+ENG->DB:Tasks where the user is a candidate
+ENG-->WEB:Tasks with deadlines
+deactivate ENG
+WEB-->REV:Task list
+end
+REV->WEB:Open AC-2026-0147
+WEB->ENG:Get procedure
+activate ENG
+ENG->DB:Data, attachments, history
+ENG-->WEB:Procedure
+deactivate ENG
+opt UC25 View audit log and history
+REV->WEB:See full history
+WEB->ENG:Get audit log
+activate ENG
+ENG->DB:Read audit log
+ENG-->WEB:Who did what and when
+deactivate ENG
+end
+opt UC19 Add notes to a document (extend)
+REV->WEB:Add a note to a field
+end
+alt UC17 Approve a document
+REV->WEB:Approve and confirm
+WEB->ENG:Complete task (approved, notes)
+activate ENG
+ENG->DB:Close task (first to act wins)
+alt already completed by someone else
+ENG-->WEB:Already completed
+else
+ENG->PM:Review plugin, outcome approved
+PM-->ENG:Step done (approved)
+ENG->ENG:Next step, read from the instance's copy
+ENG->PM:Next step's plugin, enter step
+PM-->ENG:Wait for a person (assignee rule)
+ENG->IDP:Resolve assignees
+IDP-->ENG:Users
+ENG->DB:Create next task, log approved
+ENG-->WEB:Approved
+end
+deactivate ENG
+else UC18 Reject a document
+REV->WEB:Reject, choose reason, write notes
+WEB->ENG:Complete task (rejected, reason, notes)
+activate ENG
+ENG->DB:Close task (first to act wins)
+alt already completed by someone else
+ENG-->WEB:Already completed
+else
+ENG->PM:Review plugin, outcome rejected (reason)
+PM-->ENG:Returned or rejected,\nas the reason is set in the specification
+alt returned (e.g. incorrectly filled)
+ENG->ENG:Follow the returned transition\nto the submission step
+ENG->PM:Submission plugin, enter step
+PM-->ENG:Wait for the requester
+ENG->DB:Save notes, create task Correct request\nfor the requester, log returned
+else rejected (e.g. out of the legal deadline)
+ENG->DB:Close procedure as rejected,\nlog rejected
+end
+ENG-->WEB:Done
+end
+deactivate ENG
+end
+WEB-->REV:Back to the inbox
+opt returned for correction
+group UC20 Correct a returned document
+REQ->WEB:Task inbox, Correct request (UC27)
+WEB->ENG:Get request with notes
+activate ENG
+ENG->DB:Data and reviewer notes
+ENG->PM:Submission plugin, open step
+PM-->ENG:Form with notes on the fields
+ENG-->WEB:Form with notes on the fields
+deactivate ENG
+REQ->WEB:Fix fields, add missing files (UC15)
+REQ->WEB:Resubmit
+WEB->ENG:Resubmit
+activate ENG
+ENG->PM:Submission plugin, check the data
+PM-->ENG:Valid
+ENG->DB:Close task Correct request, save new data version
+ENG->ENG:Next step (manager validation),\nread from the instance's copy
+ENG->PM:Review plugin, enter step
+PM-->ENG:Wait for a person (managers of the requester's unit)
+ENG->IDP:Resolve assignees
+IDP-->ENG:Users
+ENG->DB:Create task, log resubmitted
+ENG-->WEB:Resubmitted
+deactivate ENG
+WEB-->REQ:Confirmation
+end
+end
+end
+
+==4 · Final validation · Reviewer (HR)==
+
+group UC22 Validate and close a procedure
+REV->WEB:Open task Final validation (UC27)
+WEB->ENG:Get procedure
+activate ENG
+ENG->DB:Data, approvals, certificate dates
+ENG->PM:Final validation plugin, run checks
+PM-->ENG:Certificate, finance approval,\ndates match or conflict
+ENG-->WEB:Checks
+deactivate ENG
+alt dates in conflict
+WEB-->REV:Conflict flagged
+REV->WEB:Reject or return to the Requester (UC18)
+else all checks pass
+REV->WEB:Validate and close
+WEB->ENG:Complete task (validated)
+activate ENG
+ENG->DB:Close task (first to act wins)
+ENG->PM:Final validation plugin, outcome validated
+PM-->ENG:Step done (validated)
+ENG->ENG:Next step, read from the instance's copy
+ENG->PM:Document generation plugin, enter step
+PM-->ENG:Done, reimbursement order (PDF)
+ENG->FS:Store document
+ENG->DB:Close procedure as approved, log closed
+ENG-->WEB:Closed
+deactivate ENG
+WEB-->REV:Closed, document ready to download
+end
+end
+
+==5 · Download · any participant==
+
+group UC23 Download a generated document
+REQ->WEB:Download reimbursement order
+WEB->ENG:Get document
+activate ENG
+ENG->DB:Check the user takes part in the procedure
+ENG->FS:Read PDF
+FS-->ENG:PDF
+ENG-->WEB:PDF
+deactivate ENG
+WEB-->REQ:File saved
+end
