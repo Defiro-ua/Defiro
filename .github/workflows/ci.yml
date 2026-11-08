@@ -1,28 +1,33 @@
 name: CI
 
+# Stages, each run only when the one before it is green:
+#   commit      fast checks that need no Docker: formatting, build, unit tests
+#   acceptance  integration tests (*IT) against real infrastructure, through Testcontainers
+#   quality     SonarQube on the coverage of both, plus overall security rating A
+
 on:
   push:
     branches: [main]
   pull_request:
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # A new push to a pull request replaces its previous run; runs on main always finish.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  build:
-    name: Build and test
+  commit-server:
+    name: Commit · server
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0 # SonarQube uses the full history to tell new code from old
+          persist-credentials: false
 
       - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
@@ -30,22 +35,200 @@ jobs:
           java-version: 21
           cache: maven
 
-      # Testcontainers uses the runner's Docker for the database tests.
-      - name: Build and test
-        run: ./mvnw -B verify
+      - name: Check formatting
+        run: ./mvnw -B spotless:check
 
-      # SONAR_TOKEN is both an Actions secret and a Dependabot secret, so team and Dependabot
-      # pull requests are analysed. The SonarQube steps are skipped only on pull requests from
-      # forks, which can't read secrets; "SonarCloud Code Analysis" is required on main, so
-      # those need a maintainer to run the analysis.
+      - name: Build and run unit tests
+        run: ./mvnw -B verify -DskipITs
+
+      # Packed with their module paths: uploading a single file would drop them.
+      - name: Pack unit test coverage
+        run: find . -path '*/target/site/jacoco/jacoco.xml' -print0 | tar --null -czf coverage-unit.tgz -T -
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-unit
+          path: coverage-unit.tgz
+          if-no-files-found: error
+
+      - name: Upload unit test reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-reports-unit
+          path: '**/target/surefire-reports/'
+          if-no-files-found: warn
+
+  # Not in any job's needs: Dependency review doesn't run on pushes to main, and a job that
+  # needs a skipped job is skipped too. Both are required checks on their own.
+  workflow-lint:
+    name: Workflow lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Test the CI scripts
+        run: |
+          for test in .github/scripts/*.test.sh; do
+            echo "::group::$test"
+            bash "$test"
+            echo "::endgroup::"
+          done
+
+      - name: Lint the CI scripts
+        run: shellcheck -x .github/scripts/*.sh
+
+      # Reports findings as annotations and fails on them. (With advanced-security, zizmor uploads
+      # SARIF and always exits 0, so it would never block a merge.)
+      - uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
+        with:
+          advanced-security: false
+          annotations: true
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Fails when the pull request adds or upgrades to a dependency with a known vulnerability
+      # of any severity.
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: low
+
+  acceptance:
+    name: Acceptance
+    needs: [commit-server]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      # Testcontainers uses the runner's Docker. Failed tests are never re-run: a flaky test is a defect.
+      - name: Run integration tests
+        run: ./mvnw -B verify -DskipUTs
+
+      - name: Pack integration test coverage
+        run: find . -path '*/target/site/jacoco-it/jacoco.xml' -print0 | tar --null -czf coverage-it.tgz -T -
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-it
+          path: coverage-it.tgz
+          if-no-files-found: error
+
+      - name: Upload integration test reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-reports-it
+          path: '**/target/failsafe-reports/'
+          if-no-files-found: warn
+
+  quality-gate:
+    name: Quality gate
+    needs: [commit-server, acceptance]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      # SONAR_TOKEN is both an Actions secret and a Dependabot secret, so team and Dependabot pull
+      # requests are analysed. Pull requests from forks can't read secrets. GitHub would count a
+      # skipped job as passed, so this job fails instead, and a maintainer runs the analysis.
+      - name: Check that SonarQube can be used
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "${SONAR_TOKEN:-}" ]; then
+            echo "::error::SonarQube analysis needs a maintainer: pull requests from forks cannot read SONAR_TOKEN."
+            exit 1
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # SonarQube uses the full history to tell new code from old
+          persist-credentials: false
+
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
       - name: Cache SonarQube packages
-        if: env.SONAR_TOKEN != ''
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: SonarQube Cloud analysis
-        if: env.SONAR_TOKEN != ''
-        run: ./mvnw -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: coverage-unit
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: coverage-it
+
+      - name: Unpack coverage
+        run: |
+          tar -xzf coverage-unit.tgz
+          tar -xzf coverage-it.tgz
+
+      - name: Check that the coverage reports are there
+        run: |
+          missing=0
+          for report in apps/server/target/site/jacoco/jacoco.xml apps/server/target/site/jacoco-it/jacoco.xml; do
+            if [ ! -s "$report" ]; then
+              echo "::error::Coverage report $report is missing, so SonarQube would see no coverage."
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      # The scanner reads the compiled classes; the tests already ran in the earlier stages.
+      - name: Compile
+        run: ./mvnw -B test-compile
+
+      - name: SonarQube analysis (Sonar way)
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./mvnw -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.qualitygate.wait=true
+
+      # Sonar way on SonarQube Cloud judges new code by ratings, which let minor issues through.
+      - name: Pull request adds no new issues
+        if: github.event_name == 'pull_request'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: Defiro-ua_Defiro
+          SONAR_PULL_REQUEST: ${{ github.event.pull_request.number }}
+        run: .github/scripts/check-new-issues.sh
+
+      - name: Overall code has security rating A
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: Defiro-ua_Defiro
+        run: .github/scripts/check-security-rating.sh
