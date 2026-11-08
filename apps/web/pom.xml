@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        This module builds nothing: npm builds and tests the web app. It only tells SonarQube where
+        the web app's TypeScript, its tests and their coverage are, so one analysis covers both apps.
+    -->
+    <parent>
+        <groupId>io.github.defiro</groupId>
+        <artifactId>defiro-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>web</artifactId>
+    <name>web</name>
+    <packaging>pom</packaging>
+
+    <properties>
+        <sonar.sources>src</sonar.sources>
+        <sonar.exclusions>**/*.test.ts,**/*.test.tsx,src/test/**</sonar.exclusions>
+        <sonar.tests>src</sonar.tests>
+        <sonar.test.inclusions>**/*.test.ts,**/*.test.tsx</sonar.test.inclusions>
+        <!-- Written by npm run test:coverage; in CI, downloaded from Commit (web) -->
+        <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
+    </properties>
+</project>

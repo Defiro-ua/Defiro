@@ -249,6 +249,11 @@ jobs:
         with:
           name: coverage-it
 
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: coverage-web
+          path: apps/web/coverage
+
       - name: Unpack coverage
         run: |
           tar -xzf coverage-unit.tgz
@@ -257,7 +262,7 @@ jobs:
       - name: Check that the coverage reports are there
         run: |
           missing=0
-          for report in apps/server/target/site/jacoco/jacoco.xml apps/server/target/site/jacoco-it/jacoco.xml; do
+          for report in apps/server/target/site/jacoco/jacoco.xml apps/server/target/site/jacoco-it/jacoco.xml apps/web/coverage/lcov.info; do
             if [ ! -s "$report" ]; then
               echo "::error::Coverage report $report is missing, so SonarQube would see no coverage."
               missing=1
