@@ -3,6 +3,7 @@ package io.github.defiro;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.nimbusds.jose.JOSEException;
@@ -74,9 +75,9 @@ class SecurityIT {
                 .andExpect(status().isUnauthorized());
     }
 
-    // The next two tests guard what makes it safe to turn CSRF protection off (see
-    // SecurityConfiguration): the browser never sends credentials on its own. If either fails,
-    // turn CSRF protection back on.
+    // The next three tests guard what makes it safe to turn CSRF protection off (see
+    // SecurityConfiguration): the browser never sends credentials on its own. If any of them
+    // fails, turn CSRF protection back on.
 
     @Test
     void requestWithValidBasicCredentialsIsUnauthorized() throws Exception {
@@ -88,9 +89,18 @@ class SecurityIT {
     }
 
     @Test
-    void authenticatedRequestCreatesNoSession() throws Exception {
-        MvcResult result = mvc.perform(get("/api/anything").header(HttpHeaders.AUTHORIZATION, bearer(TRUSTED_KEY)))
-                .andReturn();
+    void loginFormIsNotOffered() throws Exception {
+        // With a login form, this request would sign in and redirect (302) instead.
+        mvc.perform(post("/login").param("username", KNOWN_USER).param("password", KNOWN_PASSWORD))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void refusedRequestCreatesNoSession() throws Exception {
+        // A bearer-token request never stores its login in a session, so it can't show this. A
+        // refused request can: unless the app is stateless, Spring saves it in a new session to
+        // replay after login, and that session's cookie is what the browser would then send.
+        MvcResult result = mvc.perform(get("/api/anything")).andReturn();
 
         assertThat(result.getRequest().getSession(false)).isNull();
     }
