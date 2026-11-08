@@ -6,7 +6,6 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,13 +23,7 @@ class SecurityConfiguration {
                         .permitAll()
                         .anyRequest()
                         .authenticated())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // CSRF protection is off because credentials only arrive in the Authorization header,
-                // which browsers never attach on their own. Turn it back on if the API ever accepts
-                // credentials the browser sends automatically: a session or token cookie, HTTP basic
-                // or digest authentication, a login form, or client certificates (mTLS).
-                // See https://www.baeldung.com/csrf-stateless-rest-api
-                .csrf(AbstractHttpConfigurer::disable);
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         if (jwtDecoder.getIfAvailable() != null) {
             http.oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
         }
