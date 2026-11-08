@@ -1,8 +1,7 @@
 package io.github.defiro;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.nimbusds.jose.JOSEException;
@@ -12,7 +11,6 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Base64;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,8 +19,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -30,9 +26,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 // Plays the identity provider: the app trusts tokens signed with TRUSTED_KEY, and the tests sign
 // real tokens that go through the bearer-token filter and the decoder.
@@ -43,10 +37,6 @@ class SecurityIT {
 
     static final RSAKey TRUSTED_KEY = newKey();
     static final RSAKey OTHER_KEY = newKey();
-
-    // A user that HTTP Basic or a login form would accept, if either were ever switched on.
-    static final String KNOWN_USER = "ana";
-    static final String KNOWN_PASSWORD = "correct-password";
 
     @Autowired
     MockMvc mvc;
@@ -74,25 +64,19 @@ class SecurityIT {
                 .andExpect(status().isUnauthorized());
     }
 
-    // The next two tests guard what makes it safe to turn CSRF protection off (see
-    // SecurityConfiguration): the browser never sends credentials on its own. If either fails,
-    // turn CSRF protection back on.
-
     @Test
-    void requestWithValidBasicCredentialsIsUnauthorized() throws Exception {
-        String basic =
-                "Basic " + Base64.getEncoder().encodeToString((KNOWN_USER + ":" + KNOWN_PASSWORD).getBytes(UTF_8));
-
-        mvc.perform(get("/api/anything").header(HttpHeaders.AUTHORIZATION, basic))
-                .andExpect(status().isUnauthorized());
+    void writeWithoutTokenIsRefusedByCsrfProtection() throws Exception {
+        // 403, not 401: the CSRF check runs before authentication. If CSRF protection were
+        // turned off, this would be 401.
+        mvc.perform(post("/api/anything")).andExpect(status().isForbidden());
     }
 
     @Test
-    void authenticatedRequestCreatesNoSession() throws Exception {
-        MvcResult result = mvc.perform(get("/api/anything").header(HttpHeaders.AUTHORIZATION, bearer(TRUSTED_KEY)))
-                .andReturn();
-
-        assertThat(result.getRequest().getSession(false)).isNull();
+    void writeWithValidTokenNeedsNoCsrfToken() throws Exception {
+        // Spring skips the CSRF check for bearer-token requests, since a browser never attaches
+        // that header on its own.
+        mvc.perform(post("/api/anything").header(HttpHeaders.AUTHORIZATION, bearer(TRUSTED_KEY)))
+                .andExpect(status().isNotFound());
     }
 
     static String bearer(RSAKey key) {
@@ -123,14 +107,6 @@ class SecurityIT {
         @Bean
         JwtDecoder jwtDecoder() throws JOSEException {
             return NimbusJwtDecoder.withPublicKey(TRUSTED_KEY.toRSAPublicKey()).build();
-        }
-
-        @Bean
-        UserDetailsService knownUser() {
-            return new InMemoryUserDetailsManager(User.withUsername(KNOWN_USER)
-                    .password("{noop}" + KNOWN_PASSWORD)
-                    .roles("USER")
-                    .build());
         }
     }
 }

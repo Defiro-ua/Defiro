@@ -24,7 +24,8 @@ jobs:
     timeout-minutes: 30
     # Each member keeps their own token as the secret CLAUDE_CODE_OAUTH_TOKEN in the environment
     # claude-<their GitHub user id> (get the id with: gh api users/<login> --jq .id). Only that one
-    # secret reaches the runner.
+    # secret reaches the runner. Everyone with write access can still read these tokens; claude.yml
+    # explains why and what the team chose.
     environment:
       name: claude-${{ github.event.pull_request.user.id }}
       deployment: false # use the environment's secret without a deployment entry on the pull request

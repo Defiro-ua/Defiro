@@ -32,6 +32,17 @@ jobs:
     # Each member keeps their own token as the secret CLAUDE_CODE_OAUTH_TOKEN in the environment
     # claude-<their GitHub user id> (get the id with: gh api users/<login> --jq .id). Only that one
     # secret reaches the runner; the run uses the token of whoever triggered it.
+    #
+    # Who can read a member's token: everyone with write access to this repository. Separate
+    # environments stop a run from using the wrong member's token by accident, but they don't
+    # hide a token from the other members. Anyone who can push a branch can change a workflow on
+    # that branch to load another member's environment and send the token anywhere. Outsiders
+    # can't: workflows from forks never get these secrets.
+    # Closing the gap would mean allowing each environment only on main, but @claude in pull
+    # request reviews and Claude Code Review run on pull request branches, so both would stop
+    # working. Only @claude in issues and in pull request conversation comments would keep
+    # working. The team chose to keep both. Add your token only if you're fine with every member
+    # with write access being able to use it.
     environment:
       name: claude-${{ github.actor_id }}
       deployment: false # use the environment's secret without a deployment entry on the pull request

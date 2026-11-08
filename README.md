@@ -1,23 +1,25 @@
-# Defiro
+<p align="center">
+  <a href="https://defiro-ua.github.io/website/"><img src=".github/assets/logo.png" width="320" alt="Defiro"/></a>
+</p>
 
-[![CI](https://github.com/Defiro-ua/defiro/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Defiro-ua/defiro/actions/workflows/ci.yml?query=branch%3Amain)
-[![Quality gate](https://sonarcloud.io/api/project_badges/measure?project=Defiro-ua_Defiro&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Defiro-ua_Defiro)
-[![Security rating](https://sonarcloud.io/api/project_badges/measure?project=Defiro-ua_Defiro&metric=security_rating)](https://sonarcloud.io/summary/overall?id=Defiro-ua_Defiro)
-[![License: EUPL-1.2](https://img.shields.io/badge/license-EUPL--1.2-blue)](LICENSE)
+<p align="center">
+  <a href="https://github.com/Defiro-ua/defiro/actions/workflows/ci.yml?query=branch%3Amain"><img src="https://github.com/Defiro-ua/defiro/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"/></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=Defiro-ua_Defiro"><img src="https://img.shields.io/sonar/quality_gate/Defiro-ua_Defiro?server=https%3A%2F%2Fsonarcloud.io&label=quality%20gate&logo=sonarqubecloud" alt="Quality gate"/></a>
+  <a href="https://sonarcloud.io/summary/overall?id=Defiro-ua_Defiro"><img src="https://img.shields.io/sonar/coverage/Defiro-ua_Defiro?server=https%3A%2F%2Fsonarcloud.io&logo=sonarqubecloud" alt="Coverage"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-EUPL%201.2-blue" alt="License: EUPL-1.2"/></a>
+</p>
 
-Designs and runs administrative workflows for municipalities, such as a travel expenses reimbursement procedure.
+<p align="center">
+  <b>Build your workflows without writing any code.</b> A fully adaptable workflow automation platform.
+</p>
 
-## Getting started
+Draw a workflow in the designer: the steps it goes through, the people involved at each step, and the information they need. Once published, it's ready for people to make requests. Defiro takes care of the forms, inboxes, approvals and notifications along the way. Our first case study is municipal administration, starting with reimbursing an employee's travel expenses.
 
-### Prerequisites
+- **Versioned on every publish.** Each time you publish a workflow, Defiro keeps it as a new version.
+- **Every request accounted for.** Each request is tracked from step to step, and every change to it is recorded.
+- **Extensible by plugins.** Whatever a workflow needs beyond the basics comes as a plugin, loaded at runtime from the Plugin Registry.
 
-- **JDK 21**, for example Eclipse Temurin
-- **Docker**, running: the local database and the tests use it
-- **Node.js**, for the web app only
-
-You don't need to install Maven: the repository includes the Maven wrapper (`./mvnw`, or `mvnw.cmd` in a Windows terminal).
-
-### Build and run
+**Get started (30 seconds).** Needs JDK 21 and Docker:
 
 ```bash
 git clone https://github.com/Defiro-ua/defiro.git
@@ -27,7 +29,47 @@ docker compose -f deploy/compose.yaml up -d   # local Postgres on port 5432
 java -jar apps/server/target/server-0.1.0-SNAPSHOT.jar
 ```
 
-Check it's up at <http://localhost:8080/actuator/health>.
+That's it: the server answers at <http://localhost:8080/actuator/health>.
+
+**Any identity provider.** People sign in through any OpenID Connect provider, such as Microsoft Entra ID, Keycloak or Auth0: [connect yours](#sign-in).
+
+---
+
+## Prerequisites
+
+| Requirement | Minimum | Check | Install |
+|---|---|---|---|
+| JDK | 21 | `java -version` | [Eclipse Temurin](https://adoptium.net/) |
+| Docker | running | `docker info` | [Docker Desktop](https://www.docker.com/products/docker-desktop/) |
+| Node.js *(web app only)* | 22 | `node --version` | [nodejs.org](https://nodejs.org/) |
+
+You don't need to install Maven: the repository includes the Maven wrapper (`./mvnw`, or `mvnw.cmd` in a Windows terminal).
+
+**Windows quick install:**
+```powershell
+winget install EclipseAdoptium.Temurin.21.JDK Docker.DockerDesktop
+```
+
+**macOS quick install (Homebrew):**
+```bash
+brew install --cask temurin@21 docker-desktop
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo apt install openjdk-21-jdk docker.io
+```
+
+> [!IMPORTANT]
+> Build with JDK 21. If the formatting check fails with a `NoSuchFieldError` from `com.sun.tools.javac`, Maven is running on a newer JDK that palantir-java-format doesn't support yet.
+
+---
+
+## Run it locally
+
+The quick start is at the top of this README. This section covers the IDE, the web app and sign-in.
+
+**In IntelliJ IDEA**, open the folder, set the project SDK to 21 (**File → Project Structure**), and run `DefiroApplication`. To skip the compose step, run `TestDefiroApplication` (in `apps/server/src/test`) instead: it starts its own throwaway Postgres.
 
 ### Web app
 
@@ -38,8 +80,6 @@ docker compose -f deploy/compose.yaml --profile dev up web-dev   # live reload a
 
 Or, with Node installed, `npm install` and `npm run dev` in `apps/web`. See `apps/web/README.md`.
 
-In IntelliJ IDEA, open the folder, set the project SDK to 21 (**File → Project Structure**), and run `DefiroApplication`. To skip the compose step, run `TestDefiroApplication` (in `apps/server/src/test`) instead: it starts its own throwaway Postgres.
-
 ### Sign-in
 
 The server accepts tokens from any OpenID Connect provider (Microsoft Entra ID, Keycloak, Auth0 and others). Point it at one with environment variables:
@@ -49,7 +89,10 @@ The server accepts tokens from any OpenID Connect provider (Microsoft Entra ID, 
 | `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI` | `https://login.microsoftonline.com/<tenant-id>/v2.0` |
 | `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES` | the server's app registration, such as `api://defiro` |
 
-Without an issuer, nobody can sign in: only `/actuator/health` answers, and every other request is refused.
+> [!NOTE]
+> Without an issuer, nobody can sign in: only `/actuator/health` answers, and every other request is refused.
+
+---
 
 ## Project layout
 
@@ -62,11 +105,28 @@ Without an issuer, nobody can sign in: only `/actuator/health` answers, and ever
 | `plugins/` | Built-in plugins, loaded at runtime from the Plugin Registry |
 | `deploy/compose.yaml` | Local Postgres and the web app |
 
+---
+
 ## Rules to know before writing code
 
 - **Modules.** Code goes in one of the server's modules. A module's root package is its public API; everything else goes in its sub-packages, which other modules can't use. Each module's `package-info.java` lists the modules it may depend on. `ModularityTests` fails the build if code breaks these rules.
 - **Data.** Each module owns one database schema (`designer`, `engine`, `registry`). Flyway migrations go in `apps/server/src/main/resources/db/migration` and always use schema-qualified table names, such as `engine.instance`.
 - **Plugins.** The server never depends on a plugin. A plugin's id is `name@version`, generated by `plugins/pom.xml`.
+- **Tests.** Name a test after what it needs: `*Test` when a JDK is enough, `*IT` when it starts Docker containers.
+
+---
+
+## Common commands
+
+```bash
+./mvnw verify                                 # everything CI runs for the server; needs Docker
+./mvnw verify -DskipITs                       # commit stage only: formatting, build and unit tests, no Docker
+./mvnw spotless:apply                         # formats the Java code
+docker compose -f deploy/compose.yaml up -d   # starts the local Postgres
+docker compose -f deploy/compose.yaml down    # stops it; add -v to delete its data
+```
+
+---
 
 ## Quality checks
 
@@ -85,34 +145,40 @@ The quality gate has two parts:
 - **On new code:** no new issues, at least 80% coverage, at most 3% duplication, and every new security hotspot reviewed.
 - **On the overall code:** security rating A.
 
-SonarQube Cloud's built-in **Sonar way** gate checks coverage, duplication and hotspots, but it judges new issues by ratings, so a few minor code smells would still pass it. Its free plan can't change the gate, so CI adds the other two conditions through SonarQube's API: a pull request fails if it adds any issue, and the gate fails if `main`'s code doesn't have security rating A. An issue you accept in SonarQube Cloud, with the reason, no longer counts as new.
-
-If `main` loses its A (for example when SonarQube adds a rule that finds an issue in existing code), every pull request fails the gate until it's fixed: to merge the fix, a maintainer marks the listed issues as Accepted in SonarQube Cloud, with the reason, and re-runs the gate. Pull requests from forks can't read the SonarQube token, so the gate fails for them until a maintainer runs the analysis.
-
-Name a test after what it needs: `*Test` when a JDK is enough, `*IT` when it starts Docker containers.
-
-### Running the checks locally
-
-```bash
-./mvnw verify               # everything CI runs for the server; needs Docker
-./mvnw verify -DskipITs     # commit stage only: formatting, build and unit tests, no Docker
-./mvnw spotless:apply       # formats the Java code
-```
-
-Use JDK 21. If the formatting check fails with a `NoSuchFieldError` from `com.sun.tools.javac`, Maven is running on a JDK that palantir-java-format doesn't support yet.
-
 When a check is red, open the run from the pull request: the log names the failing test, and the test reports are in the run's artifacts.
 
-### In the editor
+<details>
+<summary><b>How the gate is enforced</b> (click to expand)</summary>
+
+SonarQube Cloud's built-in **Sonar way** gate checks coverage, duplication and hotspots, but it judges new issues by ratings, so a few minor code smells would still pass it. Its free plan can't change the gate, so CI adds the other two conditions through SonarQube's API: a pull request fails if it adds any issue, and the gate fails if `main`'s code doesn't have security rating A. An issue you accept in SonarQube Cloud, with the reason, no longer counts as new.
+
+If `main` loses its A (for example when SonarQube adds a rule that finds an issue in existing code), every pull request fails the gate until it's fixed: to merge the fix, a maintainer marks the listed issues as Accepted in SonarQube Cloud, with the reason, and re-runs the gate.
+
+Pull requests from forks can't read the SonarQube token, so the gate fails for them until a maintainer runs the analysis.
+
+</details>
+
+---
+
+## Editor setup
 
 IntelliJ offers to install **palantir-java-format**, so *Reformat Code* gives the same result as CI, and **SonarQube for IDE**, which then offers to bind to the SonarQube Cloud project and flags the same issues while you code.
 
-The repository stores text files with LF line endings. On Windows, if the formatting check reports files you didn't change, your working copy still has CRLF line endings. Commit or stash your work, then refresh it once:
+> [!TIP]
+> The repository stores text files with LF line endings. On Windows, if the formatting check reports files you didn't change, your working copy still has CRLF line endings. Commit or stash your work, then refresh it once:
+>
+> ```bash
+> git rm -rq --cached . && git reset -q --hard
+> ```
 
-```bash
-git rm -rq --cached . && git reset -q --hard
-```
+---
 
-### Dependencies
+## Dependencies
 
 Dependabot opens pull requests for outdated or vulnerable dependencies. Version updates wait 7 days after a release, so a compromised release is usually caught before it reaches us; security updates come straight away.
+
+---
+
+## License
+
+Defiro is open source under the [European Union Public Licence v. 1.2](LICENSE) (EUPL-1.2).
