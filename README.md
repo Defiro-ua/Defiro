@@ -13,13 +13,13 @@
   <b>Build your workflows without writing any code.</b> A fully adaptable workflow automation platform.
 </p>
 
-Draw a workflow in the designer: the steps it goes through, the people involved at each step, and the information they need. Once published, it's ready for people to start requests. Defiro takes care of the forms, inboxes, approvals and notifications along the way. Our first case study is municipal administration, starting with reimbursing an employee's travel expenses.
+Draw a workflow in the designer: the steps it goes through, the people involved at each step, and the information they need. Once published, it's ready for people to make requests. Defiro takes care of the forms, inboxes, approvals and notifications along the way. Our first case study is municipal administration, starting with reimbursing an employee's travel expenses.
 
 - **Versioned on every publish.** Each time you publish a workflow, Defiro keeps it as a new version.
 - **Every request accounted for.** Each request is tracked from step to step, and every change to it is recorded.
 - **Extensible by plugins.** Whatever a workflow needs beyond the basics comes as a plugin, loaded at runtime from the Plugin Registry.
 
-**Get started.** Needs JDK 21 and Docker:
+**Get started (30 seconds).** Needs JDK 21 and Docker:
 
 ```bash
 git clone https://github.com/Defiro-ua/defiro.git
