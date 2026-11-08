@@ -71,7 +71,6 @@ function RequestView({ persona, p, wf }: { persona: PersonaId; p: Request; wf: W
   const [doc, setDoc] = useState<DocContent | null>(null)
   const [docOpen, setDocOpen] = useState(false)
 
-
   const showDoc = (d: DocContent) => {
     setDoc(d)
     setDocOpen(true)
@@ -343,7 +342,9 @@ function RequestView({ persona, p, wf }: { persona: PersonaId; p: Request; wf: W
           className={cx('edge flex flex-col gap-2.5 rounded-md px-5.5 py-4.5', p.estado === 'rejeitado' ? 'bg-error-soft' : 'bg-warning-soft')}
         >
           <h2 id="titulo-motivo" className="m-0 text-[17px] leading-6 font-semibold">
-            {p.estado === 'rejeitado' ? 'Rejeitado por ' + withRole(p.rejeitadoPor || 'revisor') : 'Devolvido para correção por ' + withRole(p.devolvidoPor || 'revisor')}
+            {p.estado === 'rejeitado'
+              ? 'Rejeitado por ' + withRole(p.rejeitadoPor || 'revisor')
+              : 'Devolvido para correção por ' + withRole(p.devolvidoPor || 'revisor')}
             {reasonsShown.length === 1 ? ' · motivo:' : ' · motivos:'}
           </h2>
           <ul className="m-0 flex flex-col gap-0.5 pl-5.5 text-[15px] leading-[23px] font-semibold">
@@ -371,7 +372,8 @@ function RequestView({ persona, p, wf }: { persona: PersonaId; p: Request; wf: W
             <p className="m-0 flex items-start gap-2 text-[15px] leading-[23px] text-ink-2">
               <Icon name="info" size={18} className="mt-0.5 text-accent-ink" />
               <span>
-                Reveja os dados. Se alguma coisa estiver mal, use <strong>Nota</strong> junto do campo: {p.req.nome} vê a nota ao lado desse campo quando corrigir.
+                Reveja os dados. Se alguma coisa estiver mal, use <strong>Nota</strong> junto do campo: {p.req.nome} vê a nota ao lado desse campo quando
+                corrigir.
               </span>
             </p>
           )}
@@ -536,7 +538,13 @@ function RequestView({ persona, p, wf }: { persona: PersonaId; p: Request; wf: W
                 <Icon name="history" size={18} className="text-accent-ink" />
                 Histórico do pedido · {p.hist.length} registos
               </h2>
-              <button type="button" className={secondarySmall} aria-expanded={historyOpen} aria-controls="lista-historico" onClick={() => setHistoryOpen((v) => !v)}>
+              <button
+                type="button"
+                className={secondarySmall}
+                aria-expanded={historyOpen}
+                aria-controls="lista-historico"
+                onClick={() => setHistoryOpen((v) => !v)}
+              >
                 <Icon name={historyOpen ? 'chevronUp' : 'eye'} size={16} />
                 {historyOpen ? 'Esconder histórico' : 'Ver histórico'}
               </button>

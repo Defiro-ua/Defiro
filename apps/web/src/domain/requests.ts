@@ -1,18 +1,7 @@
 import { day, fmtDate, fmtDateTime, isoDate as I, isoDateTime as IT, now } from './dates'
 import { personas, withRole } from './people'
 import { allowance, eur, expensesSum, tripDays, tripTotal } from './trip'
-import type {
-  DecisionAction,
-  DocContent,
-  FieldNote,
-  FileRef,
-  Notice,
-  PersonaId,
-  Request,
-  RequestSubmission,
-  Tone,
-  Workflow,
-} from './types'
+import type { DecisionAction, DocContent, FieldNote, FileRef, Notice, PersonaId, Request, RequestSubmission, Tone, Workflow } from './types'
 import { arrivedAt, handlerName, handlerOf, idPrefix, stepDays, workflowAC, workflowById } from './workflows'
 
 const D = day
@@ -214,7 +203,7 @@ function closedRequest(): Request {
 
 export const initialRequests = (): Request[] => seed().concat([closedRequest()])
 
-const clone = <T,>(x: T): T => JSON.parse(JSON.stringify(x)) as T
+const clone = <T>(x: T): T => JSON.parse(JSON.stringify(x)) as T
 
 function nextId(requests: Request[], prefix: string) {
   let m = prefix === 'AC' ? 151 : 0
@@ -438,10 +427,7 @@ export function finalDoc(p: Request, wf: Workflow): DocContent {
     titulo: 'Comprovativo de conclusão',
     sub: wf.nome + ' · ' + p.id,
     ficheiro: `comprovativo_${p.id}.pdf`,
-    linhas: [
-      ['Requerente', withRole(p.req.nome)] as [string, string],
-      ['Unidade orgânica', p.req.unidade] as [string, string],
-    ]
+    linhas: [['Requerente', withRole(p.req.nome)] as [string, string], ['Unidade orgânica', p.req.unidade] as [string, string]]
       .concat(campos.map((c) => [c.rot, String(p.val?.[c.id] || '—')] as [string, string]))
       .concat([['Concluído por', withRole(p.fechadoPor || '') + ' a ' + fmtDate(when)]]),
     nota: 'Documento gerado pela defiro quando o procedimento foi fechado.',

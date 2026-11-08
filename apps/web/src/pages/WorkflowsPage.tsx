@@ -180,7 +180,10 @@ export function WorkflowDetailPage({ persona }: { persona: PersonaId }) {
                   <span className="grid size-10 place-items-center rounded-full border-2 border-orange bg-bg text-[16px] font-extrabold">{j + 1}</span>
                   {j < w.passos.length - 1 && <span className="min-h-4 w-0.5 flex-1 bg-line-strong" />}
                 </div>
-                <article aria-labelledby={'pd-' + x.id} className="mb-4.5 flex min-w-0 flex-1 flex-col gap-3.5 rounded-item border border-line bg-panel px-5.5 py-5">
+                <article
+                  aria-labelledby={'pd-' + x.id}
+                  className="mb-4.5 flex min-w-0 flex-1 flex-col gap-3.5 rounded-item border border-line bg-panel px-5.5 py-5"
+                >
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                     <h3 id={'pd-' + x.id} className="m-0 flex-[1_1_220px] text-title-sm font-semibold">
                       <span className="sr-only">Passo {j + 1}: </span>
@@ -206,7 +209,12 @@ export function WorkflowDetailPage({ persona }: { persona: PersonaId }) {
                           <li key={k} className={cx('flex flex-wrap items-center gap-x-3.5 gap-y-1.5 px-3.5 py-2.5', k > 0 && 'border-t border-line')}>
                             <span className="flex-[1_1_200px] text-[15px] font-semibold">{c.rot || 'Campo sem rótulo'}</span>
                             <span className="text-[14px] text-ink-2">{c.tipo}</span>
-                            <Chip tone={c.origem === 'idp' ? 'neutro' : c.obrig ? 'warn' : 'neutro'} size="xs" icon={c.origem === 'idp' ? 'lock' : undefined} iconSize={12}>
+                            <Chip
+                              tone={c.origem === 'idp' ? 'neutro' : c.obrig ? 'warn' : 'neutro'}
+                              size="xs"
+                              icon={c.origem === 'idp' ? 'lock' : undefined}
+                              iconSize={12}
+                            >
                               {c.origem === 'idp' ? 'Do perfil' : c.obrig ? 'Obrigatório' : 'Opcional'}
                             </Chip>
                           </li>

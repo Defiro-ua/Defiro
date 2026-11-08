@@ -3,18 +3,10 @@ import { cx } from './cx'
 
 /** Text inputs: 48px high, 2px red border when wrong */
 export const inputClass = (wrong?: boolean, extra?: string) =>
-  cx(
-    'box-border h-12 w-full rounded-md bg-panel px-4 text-[16px] text-ink',
-    wrong ? 'border-2 border-error' : 'border border-field',
-    extra,
-  )
+  cx('box-border h-12 w-full rounded-md bg-panel px-4 text-[16px] text-ink', wrong ? 'border-2 border-error' : 'border border-field', extra)
 
 export const textareaClass = (wrong?: boolean, extra?: string) =>
-  cx(
-    'box-border w-full rounded-md bg-panel px-3.5 py-2.5 text-[16px] leading-[23px] text-ink',
-    wrong ? 'border-2 border-error' : 'border border-field',
-    extra,
-  )
+  cx('box-border w-full rounded-md bg-panel px-3.5 py-2.5 text-[16px] leading-[23px] text-ink', wrong ? 'border-2 border-error' : 'border border-field', extra)
 
 /** Joins the ids of a field's help and error for aria-describedby */
 export const describedBy = (...ids: Array<string | false | undefined>) => ids.filter(Boolean).join(' ') || undefined

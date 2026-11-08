@@ -44,7 +44,12 @@ export function A11yProvider({ children }: { children: ReactNode }) {
       const text = /^(INPUT|SELECT|TEXTAREA)$/.test(target.tagName)
         ? describeElement(target)
         : target.getAttribute('aria-label') || (target as HTMLElement).innerText
-      speak(String(text ?? '').replace(/\s+/g, ' ').trim().slice(0, 400))
+      speak(
+        String(text ?? '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 400),
+      )
     }
     const onFocus = (event: FocusEvent) => {
       if (keyboard && event.target instanceof Element) speak(describeElement(event.target))

@@ -56,7 +56,12 @@ export function StepHeading({ kicker, name, optional, question, help }: { kicker
 /** What stops the person from moving on, at the top of the step */
 export function StepError({ children, extra }: { children: ReactNode; extra?: ReactNode }) {
   return (
-    <div id="passo-erro" tabIndex={-1} role="alert" className="flex flex-col gap-2.5 rounded-md border-2 border-error bg-error-soft px-4 py-3.5 text-error outline-none">
+    <div
+      id="passo-erro"
+      tabIndex={-1}
+      role="alert"
+      className="flex flex-col gap-2.5 rounded-md border-2 border-error bg-error-soft px-4 py-3.5 text-error outline-none"
+    >
       <p className="error-line m-0 flex gap-2.5 text-[15px] leading-[22px] font-semibold">
         <Icon name="alertCircle" size={20} />
         <span>{children}</span>
@@ -167,7 +172,11 @@ export function FileDrop({ inputId, label, labelledBy, describedBy: desc, requir
   return (
     <>
       <label
-        className={cx('dropzone relative box-border cursor-pointer rounded-md border-2 border-dashed', wrong || rejected ? 'border-error' : 'border-line-strong', className)}
+        className={cx(
+          'dropzone relative box-border cursor-pointer rounded-md border-2 border-dashed',
+          wrong || rejected ? 'border-error' : 'border-line-strong',
+          className,
+        )}
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault()
@@ -237,8 +246,7 @@ export function WizardFooter({
       <span className="flex-1" />
       {enterHint && (
         <span aria-hidden="true" className="text-[14px] text-ink-3">
-          ou carregue em{' '}
-          <kbd className="rounded-doc border border-line-strong bg-panel px-2 py-0.5 font-sans text-label-sm font-semibold">Enter ↵</kbd>
+          ou carregue em <kbd className="rounded-doc border border-line-strong bg-panel px-2 py-0.5 font-sans text-label-sm font-semibold">Enter ↵</kbd>
         </span>
       )}
       <button

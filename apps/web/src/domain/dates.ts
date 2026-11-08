@@ -41,13 +41,17 @@ export function fmtShort(iso?: string) {
 
 /** Adds the slashes while typing: 12102026 → 12/10/2026 */
 export function maskDate(v: string) {
-  const n = String(v || '').replace(/\D/g, '').slice(0, 8)
+  const n = String(v || '')
+    .replace(/\D/g, '')
+    .slice(0, 8)
   return n.slice(0, 2) + (n.length > 2 ? '/' + n.slice(2, 4) : '') + (n.length > 4 ? '/' + n.slice(4) : '')
 }
 
 /** Adds the colon while typing: 0830 → 08:30 */
 export function maskTime(v: string) {
-  const n = String(v || '').replace(/\D/g, '').slice(0, 4)
+  const n = String(v || '')
+    .replace(/\D/g, '')
+    .slice(0, 4)
   return n.slice(0, 2) + (n.length > 2 ? ':' + n.slice(2) : '')
 }
 

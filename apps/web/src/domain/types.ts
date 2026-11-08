@@ -22,16 +22,7 @@ export type Persona = {
 
 export type StepType = 'submissao' | 'revisao' | 'validacao'
 
-export type FieldType =
-  | 'Texto'
-  | 'Texto longo'
-  | 'Número'
-  | 'Data'
-  | 'Data e hora'
-  | 'Escolha única'
-  | 'Ficheiros'
-  | 'Sim ou não'
-  | 'Pessoa'
+export type FieldType = 'Texto' | 'Texto longo' | 'Número' | 'Data' | 'Data e hora' | 'Escolha única' | 'Ficheiros' | 'Sim ou não' | 'Pessoa'
 
 /** A question of a workflow's request form. `idp` fields come from the identity provider. */
 export type FormField = {

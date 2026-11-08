@@ -112,11 +112,7 @@ export function InboxPage({ persona }: { persona: PersonaId }) {
 
   return (
     <AppShell persona={persona} active="inbox" mainClassName="max-w-content gap-7">
-      <Flash
-        notice={flash}
-        onClose={closeFlash}
-        onDoc={flashRequest ? () => showDoc(finalDoc(flashRequest, workflowById(wfs, flashRequest.wf))) : undefined}
-      />
+      <Flash notice={flash} onClose={closeFlash} onDoc={flashRequest ? () => showDoc(finalDoc(flashRequest, workflowById(wfs, flashRequest.wf))) : undefined} />
       <header className="flex flex-col gap-2.5">
         <h1 ref={headingRef} tabIndex={-1} className="m-0 text-headline-lg outline-none">
           {greeting()}, <span className="text-orange">{me.primeiro}</span>

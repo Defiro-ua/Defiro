@@ -32,7 +32,15 @@ export function ProcedureProgress({ steps, current, estado = '' }: Props) {
           const past = i < cur
           const now = i === cur
           const failed = now && estado === 'rejeitado'
-          const state = past ? 'Concluído: ' : now ? (failed ? 'Rejeitado neste passo: ' : estado === 'devolvido' ? 'Passo atual, a corrigir: ' : 'Passo atual: ') : 'Por fazer: '
+          const state = past
+            ? 'Concluído: '
+            : now
+              ? failed
+                ? 'Rejeitado neste passo: '
+                : estado === 'devolvido'
+                  ? 'Passo atual, a corrigir: '
+                  : 'Passo atual: '
+              : 'Por fazer: '
           return (
             <li key={i} aria-current={now ? 'step' : undefined} className="relative flex flex-col items-center px-2 text-center">
               <span className="mb-3 flex h-7 items-center justify-center">
@@ -42,7 +50,9 @@ export function ProcedureProgress({ steps, current, estado = '' }: Props) {
                     'box-border grid place-items-center rounded-full',
                     past && 'size-6 bg-orange text-bg',
                     failed && 'size-7 bg-error text-bg',
-                    now && !failed && 'step-dot-now size-7 border-7 border-orange bg-bg shadow-[0_0_0_5px_color-mix(in_srgb,var(--color-orange)_25%,transparent)]',
+                    now &&
+                      !failed &&
+                      'step-dot-now size-7 border-7 border-orange bg-bg shadow-[0_0_0_5px_color-mix(in_srgb,var(--color-orange)_25%,transparent)]',
                     !past && !now && 'step-dot-next size-5.5 border-3 border-line-strong bg-bg',
                   )}
                 >
@@ -58,17 +68,26 @@ export function ProcedureProgress({ steps, current, estado = '' }: Props) {
               <span className="mt-0.5 text-label-sm leading-[18px] text-ink-2">{s.meta}</span>
               {s.meta2 && <span className="text-caption leading-[17px] text-ink-3">{s.meta2}</span>}
               {now && failed && (
-                <span aria-hidden="true" className="edge mt-1.5 inline-flex items-center gap-1 rounded-pill bg-error-soft px-2.5 py-0.5 text-caption leading-[18px] font-semibold text-error">
+                <span
+                  aria-hidden="true"
+                  className="edge mt-1.5 inline-flex items-center gap-1 rounded-pill bg-error-soft px-2.5 py-0.5 text-caption leading-[18px] font-semibold text-error"
+                >
                   Rejeitado
                 </span>
               )}
               {now && !failed && estado === 'devolvido' && (
-                <span aria-hidden="true" className="edge mt-1.5 inline-flex items-center gap-1 rounded-pill bg-warning-soft px-2.5 py-0.5 text-caption leading-[18px] font-semibold text-warning">
+                <span
+                  aria-hidden="true"
+                  className="edge mt-1.5 inline-flex items-center gap-1 rounded-pill bg-warning-soft px-2.5 py-0.5 text-caption leading-[18px] font-semibold text-warning"
+                >
                   A corrigir
                 </span>
               )}
               {now && !failed && estado !== 'devolvido' && (
-                <span aria-hidden="true" className="mt-1.5 inline-flex items-center gap-1 rounded-pill bg-brand px-2.5 py-0.5 text-caption leading-[18px] font-semibold text-on-brand">
+                <span
+                  aria-hidden="true"
+                  className="mt-1.5 inline-flex items-center gap-1 rounded-pill bg-brand px-2.5 py-0.5 text-caption leading-[18px] font-semibold text-on-brand"
+                >
                   Agora
                 </span>
               )}

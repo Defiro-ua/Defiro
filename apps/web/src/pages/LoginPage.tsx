@@ -121,7 +121,14 @@ export function LoginPage() {
               />
             </svg>
             <span aria-hidden="true" className="absolute top-[25px] left-[calc(2%-11px)] hidden size-5.5 rounded-full bg-yellow md:block" />
-            <svg aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 28 28" className="absolute top-[22px] left-[calc(94.33%-6px)] hidden md:block">
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              width="28"
+              height="28"
+              viewBox="0 0 28 28"
+              className="absolute top-[22px] left-[calc(94.33%-6px)] hidden md:block"
+            >
               <path d="M4 3 L25 14 L4 25 Z" style={{ fill: 'var(--color-orange)' }} strokeLinejoin="round" />
             </svg>
             <ol className="relative m-0 grid list-none grid-cols-1 gap-y-10 p-0 md:grid-cols-3 md:gap-y-0">
@@ -200,8 +207,8 @@ export function LoginPage() {
             <span className="edge self-start rounded-sm bg-warning-soft px-2.5 py-0.5 text-caption font-semibold text-warning">Só na demonstração</span>
           </div>
           <p id="contas-intro" className="m-0 text-[15px] leading-[23px] text-ink-2">
-            Na aplicação real, aqui abre a página de início de sessão do fornecedor de identidade (IdP) da sua organização. Para a demonstração, escolha com quem
-            quer entrar.
+            Na aplicação real, aqui abre a página de início de sessão do fornecedor de identidade (IdP) da sua organização. Para a demonstração, escolha com
+            quem quer entrar.
           </p>
           <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {personaIds.map((id) => {
@@ -216,7 +223,10 @@ export function LoginPage() {
                     }}
                     className="choice-card flex min-h-16 w-full items-center gap-3.5 rounded-item border border-line-strong bg-panel px-3.5 py-2 text-left text-ink"
                   >
-                    <span aria-hidden="true" className="grid size-10.5 shrink-0 place-items-center rounded-full bg-brand text-[14px] font-extrabold text-on-brand">
+                    <span
+                      aria-hidden="true"
+                      className="grid size-10.5 shrink-0 place-items-center rounded-full bg-brand text-[14px] font-extrabold text-on-brand"
+                    >
                       {p.ini}
                     </span>
                     <span className="flex flex-1 flex-col leading-[1.35]">

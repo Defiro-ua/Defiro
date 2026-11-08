@@ -15,8 +15,7 @@ const fresh = (): Omit<DemoData, 'persona'> => ({ pedidos: initialRequests(), wf
 function load(): DemoData {
   try {
     const saved = JSON.parse(window.sessionStorage.getItem(STORAGE_KEY) || 'null') as DemoData | null
-    if (saved && Array.isArray(saved.pedidos) && Array.isArray(saved.wfs))
-      return { ...saved, persona: isPersonaId(saved.persona) ? saved.persona : null }
+    if (saved && Array.isArray(saved.pedidos) && Array.isArray(saved.wfs)) return { ...saved, persona: isPersonaId(saved.persona) ? saved.persona : null }
   } catch {
     // Blocked storage: start from the beginning
   }

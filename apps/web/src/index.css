@@ -196,9 +196,7 @@
   background-image: linear-gradient(to bottom, var(--color-yellow), var(--color-orange));
 }
 @utility bg-login {
-  background:
-    var(--login-bg),
-    var(--color-bg);
+  background: var(--login-bg), var(--color-bg);
 }
 /* 1.5px outline of buttons and emphasised controls */
 @utility border-emph {
@@ -214,8 +212,7 @@
 :root {
   --login-bg:
     radial-gradient(1100px 680px at 92% -10%, rgb(231 167 24 / 0.22), transparent 62%),
-    radial-gradient(900px 640px at -14% 58%, rgb(218 98 2 / 0.1), transparent 60%),
-    linear-gradient(180deg, #fffdfa 0%, #fff8ec 100%);
+    radial-gradient(900px 640px at -14% 58%, rgb(218 98 2 / 0.1), transparent 60%), linear-gradient(180deg, #fffdfa 0%, #fff8ec 100%);
 }
 
 @layer base {
@@ -442,8 +439,7 @@ html[data-tema='cma'] {
   --color-sombra: rgb(0 95 128 / 0.3);
   --login-bg:
     radial-gradient(1100px 680px at 92% -10%, rgb(0 135 177 / 0.2), transparent 62%),
-    radial-gradient(900px 640px at -14% 58%, rgb(97 144 200 / 0.12), transparent 60%),
-    linear-gradient(180deg, #f8fbfd 0%, #eef6fa 100%);
+    radial-gradient(900px 640px at -14% 58%, rgb(97 144 200 / 0.12), transparent 60%), linear-gradient(180deg, #f8fbfd 0%, #eef6fa 100%);
 }
 
 /*
@@ -469,9 +465,7 @@ html[data-cor='vermelho-verde'] {
   --color-warning-soft: #fbf0b5;
   --color-error: #a33f00;
   --color-error-soft: #fde6d6;
-  --login-bg:
-    radial-gradient(1100px 680px at 92% -10%, rgb(86 180 233 / 0.22), transparent 62%),
-    linear-gradient(180deg, #fffdfa 0%, #f4f8fc 100%);
+  --login-bg: radial-gradient(1100px 680px at 92% -10%, rgb(86 180 233 / 0.22), transparent 62%), linear-gradient(180deg, #fffdfa 0%, #f4f8fc 100%);
 }
 html[data-cor='azul-amarelo'] {
   --color-orange: #b8134f;
@@ -492,9 +486,7 @@ html[data-cor='azul-amarelo'] {
   --color-warning-soft: #ffe2cc;
   --color-error: #a1251b;
   --color-error-soft: #fde3e1;
-  --login-bg:
-    radial-gradient(1100px 680px at 92% -10%, rgb(232 120 159 / 0.2), transparent 62%),
-    linear-gradient(180deg, #fffdfa 0%, #fdf4f6 100%);
+  --login-bg: radial-gradient(1100px 680px at 92% -10%, rgb(232 120 159 / 0.2), transparent 62%), linear-gradient(180deg, #fffdfa 0%, #fdf4f6 100%);
 }
 html[data-cor='contraste'] {
   --color-bg: #ffffff;

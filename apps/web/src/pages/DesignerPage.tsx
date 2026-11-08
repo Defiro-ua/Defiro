@@ -37,7 +37,6 @@ export function DesignerPage() {
   const [triedAll, setTriedAll] = useState(false)
   const [triedField, setTriedField] = useState(false)
 
-
   const P = w.passos
   const P0 = P[0]
   const revs = P.slice(1)
@@ -152,7 +151,9 @@ export function DesignerPage() {
       autor: 'Sofia Almeida',
       data: fmtDate(isoDate(new Date())),
       novo: true,
-      precisa: (P0.campos || []).some((c) => c.tipo === 'Ficheiros' && c.origem === 'req') ? 'os ficheiros pedidos no formulário' : 'os dados pedidos no formulário',
+      precisa: (P0.campos || []).some((c) => c.tipo === 'Ficheiros' && c.origem === 'req')
+        ? 'os ficheiros pedidos no formulário'
+        : 'os dados pedidos no formulário',
       passos: (JSON.parse(JSON.stringify(w.passos)) as WorkflowStep[]).map((p) => ({ ...p, prazo: p.tipo === 'submissao' ? '' : Number(p.prazo) })),
     }
     criarWf(nw, { tom: 'ok', titulo: 'Workflow criado', texto: `«${nw.nome}» já aparece em «Novo pedido» para ${nw.passos[0].quem || 'os trabalhadores'}.` })
@@ -179,7 +180,10 @@ export function DesignerPage() {
       q: pa0 ? `Porque pode «${stepName(pa0)}» devolver ou rejeitar o pedido?` : '',
       ajuda: 'Quem trata este passo escolhe um ou mais destes motivos quando devolve ou rejeita. Precisa de pelo menos um.',
     },
-    percurso: { q: 'O percurso está completo?', ajuda: 'O pedido passa por estes passos, por esta ordem. Pode alterar um passo, mudar a ordem ou acrescentar outro no fim.' },
+    percurso: {
+      q: 'O percurso está completo?',
+      ajuda: 'O pedido passa por estes passos, por esta ordem. Pode alterar um passo, mudar a ordem ou acrescentar outro no fim.',
+    },
     campos: { q: 'Que dados pede ao requerente?', ajuda: 'São as perguntas do formulário do pedido, por esta ordem. Acrescente um campo de cada vez.' },
     campo: {
       q: cs && String(cs.rot || '').trim() ? `Como é o campo «${cs.rot}»?` : 'Como é o novo campo?',
@@ -213,8 +217,12 @@ export function DesignerPage() {
         ? 'Ainda não pode criar o workflow: falta corrigir 1 coisa, assinalada abaixo.'
         : `Ainda não pode criar o workflow: faltam corrigir ${errors.length} coisas, assinaladas abaixo.`
   else if (kind === 'percurso' && screenErrors.length)
-    stepError = incomplete.length ? 'Para continuar, complete ' + (incomplete.length === 1 ? 'este passo:' : 'estes passos:') : screenErrors[0].curto || screenErrors[0].txt
-  else if (screenErrors.length) stepError = screenErrors.length === 1 ? 'Para continuar, corrija o que está assinalado.' : `Para continuar, corrija as ${screenErrors.length} coisas assinaladas.`
+    stepError = incomplete.length
+      ? 'Para continuar, complete ' + (incomplete.length === 1 ? 'este passo:' : 'estes passos:')
+      : screenErrors[0].curto || screenErrors[0].txt
+  else if (screenErrors.length)
+    stepError =
+      screenErrors.length === 1 ? 'Para continuar, corrija o que está assinalado.' : `Para continuar, corrija as ${screenErrors.length} coisas assinaladas.`
 
   const last = kind === 'rever'
   let nextText = 'Continuar'
@@ -268,7 +276,14 @@ export function DesignerPage() {
           <span id="ajuda-wf-desc" className="text-[14px] text-ink-3">
             Uma ou duas frases sobre para que serve. Aparece no resumo do workflow.
           </span>
-          <textarea id="wf-desc" rows={2} value={w.desc} onChange={(e) => change({ t: 'desc', v: e.target.value })} aria-describedby="ajuda-wf-desc" className={textareaClass(false, 'min-h-24')} />
+          <textarea
+            id="wf-desc"
+            rows={2}
+            value={w.desc}
+            onChange={(e) => change({ t: 'desc', v: e.target.value })}
+            aria-describedby="ajuda-wf-desc"
+            className={textareaClass(false, 'min-h-24')}
+          />
         </div>
       </div>
     )
@@ -398,7 +413,10 @@ export function DesignerPage() {
               )}
             >
               <legend className="float-left m-0 flex w-full items-center gap-2 p-0 text-[17px] leading-6 font-semibold">
-                <span aria-hidden="true" className={cx('grid size-7 place-items-center rounded-full', fix ? 'bg-warning-soft text-warning' : 'bg-error-soft text-error')}>
+                <span
+                  aria-hidden="true"
+                  className={cx('grid size-7 place-items-center rounded-full', fix ? 'bg-warning-soft text-warning' : 'bg-error-soft text-error')}
+                >
                   <Icon name={fix ? 'reset' : 'x'} size={16} />
                 </span>
                 {fix ? 'Para devolver ao requerente, para corrigir' : 'Para rejeitar e encerrar o pedido'}
@@ -410,7 +428,9 @@ export function DesignerPage() {
               </span>
               {list.length === 0 && (
                 <p className="m-0 text-[14px] leading-5 text-ink-3">
-                  {fix ? 'Sem motivos para devolver: neste passo não se pode devolver o pedido.' : 'Sem motivos para rejeitar: neste passo não se pode rejeitar o pedido.'}
+                  {fix
+                    ? 'Sem motivos para devolver: neste passo não se pode devolver o pedido.'
+                    : 'Sem motivos para rejeitar: neste passo não se pode rejeitar o pedido.'}
                 </p>
               )}
               <ul className="m-0 flex list-none flex-col gap-2 p-0">
@@ -454,7 +474,12 @@ export function DesignerPage() {
                   )
                 })}
               </ul>
-              <button type="button" id={addId} className={cx(secondarySmall, 'self-start')} onClick={() => change({ t: 'addMotivo', passo: p.id, nome: '', fix }, `wf-${p.id}-m${motivos.length}`)}>
+              <button
+                type="button"
+                id={addId}
+                className={cx(secondarySmall, 'self-start')}
+                onClick={() => change({ t: 'addMotivo', passo: p.id, nome: '', fix }, `wf-${p.id}-m${motivos.length}`)}
+              >
                 <Icon name="plus" size={16} />
                 {fix ? 'Acrescentar motivo para devolver' : 'Acrescentar motivo para rejeitar'}
               </button>
@@ -482,7 +507,10 @@ export function DesignerPage() {
                   id={'pc-' + p.id}
                   tabIndex={-1}
                   aria-labelledby={'pch-' + p.id}
-                  className={cx('box-border flex w-full flex-col gap-3 rounded-item bg-panel px-5 py-4.5 outline-none', ok ? 'border border-line-strong' : 'border-2 border-warning')}
+                  className={cx(
+                    'box-border flex w-full flex-col gap-3 rounded-item bg-panel px-5 py-4.5 outline-none',
+                    ok ? 'border border-line-strong' : 'border-2 border-warning',
+                  )}
                 >
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                     <span
@@ -577,7 +605,9 @@ export function DesignerPage() {
           })}
         </ol>
         <div className="box-border flex w-full flex-col gap-2.5 rounded-item border-2 border-dashed border-line-strong px-5 py-4.5">
-          <p className="m-0 text-[15px] leading-[22px] font-semibold">{hasFinal ? 'Acrescentar uma revisão antes da validação final' : 'Acrescentar um passo no fim'}</p>
+          <p className="m-0 text-[15px] leading-[22px] font-semibold">
+            {hasFinal ? 'Acrescentar uma revisão antes da validação final' : 'Acrescentar um passo no fim'}
+          </p>
           <div className="flex flex-wrap gap-2.5">
             {(hasFinal ? (['revisao'] as const) : (['revisao', 'validacao'] as const)).map((t) => (
               <button
@@ -751,7 +781,14 @@ export function DesignerPage() {
           <div className="flex flex-wrap gap-2.5">
             {answerTypes.map((t) => (
               <label key={t.v} className={cardClass(cs.tipo === t.v, 'min-h-16 flex-[1_1_240px]')}>
-                <input type="radio" name="cp-tipo" value={t.v} checked={cs.tipo === t.v} onChange={() => set('tipo', t.v)} className={cx(radioClass, 'mt-0.5')} />
+                <input
+                  type="radio"
+                  name="cp-tipo"
+                  value={t.v}
+                  checked={cs.tipo === t.v}
+                  onChange={() => set('tipo', t.v)}
+                  className={cx(radioClass, 'mt-0.5')}
+                />
                 <span className="flex flex-col gap-0.5">
                   <span className="text-[15px] leading-[21px] font-semibold">{t.nome}</span>
                   <span className="text-label-sm leading-[18px] text-ink-3">{t.desc}</span>
@@ -779,7 +816,9 @@ export function DesignerPage() {
               className={textareaClass(badOptions, 'min-h-28')}
             />
             {badOptions && (
-              <FieldError id="erro-cp-opcoes">{nOptions === 0 ? 'Escreva as opções de resposta, pelo menos duas.' : 'Falta pelo menos mais uma opção.'}</FieldError>
+              <FieldError id="erro-cp-opcoes">
+                {nOptions === 0 ? 'Escreva as opções de resposta, pelo menos duas.' : 'Falta pelo menos mais uma opção.'}
+              </FieldError>
             )}
           </div>
         )}
@@ -854,7 +893,10 @@ export function DesignerPage() {
         {section(
           'campos',
           'Formulário do pedido',
-          (P0.campos || []).map((c) => ({ rot: c.rot || 'Campo sem rótulo', v: `${c.tipo} · ${c.origem === 'idp' ? 'do perfil' : c.obrig ? 'obrigatório' : 'opcional'}` })),
+          (P0.campos || []).map((c) => ({
+            rot: c.rot || 'Campo sem rótulo',
+            v: `${c.tipo} · ${c.origem === 'idp' ? 'do perfil' : c.obrig ? 'obrigatório' : 'opcional'}`,
+          })),
           (t) => t === 'campos',
         )}
         <p className="m-0 flex items-start gap-2 text-[15px] leading-[23px] text-ink-2">
@@ -868,7 +910,13 @@ export function DesignerPage() {
   }
 
   return (
-    <WizardLayout title={w.nome ? 'Novo workflow · ' + w.nome : 'Novo workflow'} pct={pct} exitTo={paths.workflows} exitSr="sem criar o workflow" onExit={() => setRasc(null)}>
+    <WizardLayout
+      title={w.nome ? 'Novo workflow · ' + w.nome : 'Novo workflow'}
+      pct={pct}
+      exitTo={paths.workflows}
+      exitSr="sem criar o workflow"
+      onExit={() => setRasc(null)}
+    >
       <div className={cx('flex w-full flex-wrap items-start gap-x-10 gap-y-8', pa0 ? 'max-w-[1180px]' : 'max-w-[900px]')}>
         <form
           noValidate
@@ -926,7 +974,10 @@ export function DesignerPage() {
         </form>
 
         {pa0 && (
-          <aside aria-labelledby="titulo-percurso-mini" className="sticky top-6 flex max-w-full flex-[1_1_280px] flex-col gap-3 rounded-lg border border-line-strong bg-tint px-5 pt-5 pb-4">
+          <aside
+            aria-labelledby="titulo-percurso-mini"
+            className="sticky top-6 flex max-w-full flex-[1_1_280px] flex-col gap-3 rounded-lg border border-line-strong bg-tint px-5 pt-5 pb-4"
+          >
             <h2 id="titulo-percurso-mini" className="m-0 text-[16px] leading-[22px] font-semibold">
               O percurso até agora
             </h2>
@@ -940,19 +991,30 @@ export function DesignerPage() {
                       <span
                         className={cx(
                           'grid size-7 place-items-center rounded-full text-label-sm font-extrabold',
-                          on ? 'bg-brand text-on-brand' : ok ? 'bg-bg shadow-[inset_0_0_0_2px_var(--color-orange)]' : 'bg-bg shadow-[inset_0_0_0_2px_var(--color-line-strong)]',
+                          on
+                            ? 'bg-brand text-on-brand'
+                            : ok
+                              ? 'bg-bg shadow-[inset_0_0_0_2px_var(--color-orange)]'
+                              : 'bg-bg shadow-[inset_0_0_0_2px_var(--color-line-strong)]',
                         )}
                       >
                         {i + 1}
                       </span>
                       {i < P.length - 1 && <span className="min-h-2.5 w-0.5 flex-1 bg-line-strong" />}
                     </div>
-                    <div className={cx('mb-2.5 flex min-w-0 flex-1 flex-col rounded-tile px-2.5 py-1.5', on && 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--color-orange)]')}>
+                    <div
+                      className={cx(
+                        'mb-2.5 flex min-w-0 flex-1 flex-col rounded-tile px-2.5 py-1.5',
+                        on && 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--color-orange)]',
+                      )}
+                    >
                       <span className="text-[14px] leading-5 font-semibold">
                         <span className="sr-only">{on ? 'A editar agora: ' : ok ? 'Completo: ' : 'Por completar: '}</span>
                         {stepName(p)}
                       </span>
-                      <span className={cx('text-label-sm leading-[18px]', p.quem ? 'text-ink-2' : 'text-warning')}>{p.quem || 'Falta escolher quem trata'}</span>
+                      <span className={cx('text-label-sm leading-[18px]', p.quem ? 'text-ink-2' : 'text-warning')}>
+                        {p.quem || 'Falta escolher quem trata'}
+                      </span>
                     </div>
                   </li>
                 )

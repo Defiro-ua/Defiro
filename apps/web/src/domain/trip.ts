@@ -13,7 +13,11 @@ export function eur(v: number) {
 
 /** «24,10» → 24.1 */
 export function parseNumber(v: string) {
-  const n = Number(String(v || '').replace(/\s/g, '').replace(',', '.'))
+  const n = Number(
+    String(v || '')
+      .replace(/\s/g, '')
+      .replace(',', '.'),
+  )
   return Number.isFinite(n) ? n : NaN
 }
 
@@ -34,14 +38,18 @@ export const tripTotal = (d: TripData, desp: Expense[]) => allowance(d) + expens
 export function dateConflict(d: Partial<TripData>): string | null {
   if (!d.partida || !d.regresso || !d.certIni || !d.certFim) return null
   const ok = String(d.partida).slice(0, 10) === d.certIni && String(d.regresso).slice(0, 10) === d.certFim
-  return ok
-    ? ''
-    : `O certificado indica ${fmtDate(d.certIni)} a ${fmtDate(d.certFim)} e a deslocação foi de ${fmtDate(d.partida)} a ${fmtDate(d.regresso)}.`
+  return ok ? '' : `O certificado indica ${fmtDate(d.certIni)} a ${fmtDate(d.certFim)} e a deslocação foi de ${fmtDate(d.partida)} a ${fmtDate(d.regresso)}.`
 }
 
 /** NIF 123 456 789 and IBAN PT50 0035 0000 …: grouped while typing */
 const grouped = (v: string, n: number) => v.replace(new RegExp('(.{' + n + '})(?=.)', 'g'), '$1 ')
-export const maskNif = (v: string) => grouped(String(v || '').replace(/\D/g, '').slice(0, 9), 3)
+export const maskNif = (v: string) =>
+  grouped(
+    String(v || '')
+      .replace(/\D/g, '')
+      .slice(0, 9),
+    3,
+  )
 export const maskIban = (v: string) =>
   grouped(
     String(v || '')
@@ -82,8 +90,7 @@ export function validateTrip(d: TripData, desp: Expense[], cert: FileRef | null)
   else if (outside(d.certIni, L.min, L.max)) e.push({ id: 'campo-certIni', txt: 'A data de início do certificado não é possível.', vivo: true })
   if (!d.certFim) e.push({ id: 'campo-certFim', txt: 'Indique a data de fim do certificado de presença.' })
   else if (outside(d.certFim, L.min, L.max)) e.push({ id: 'campo-certFim', txt: 'A data de fim do certificado não é possível.', vivo: true })
-  else if (d.certIni && d.certFim < d.certIni)
-    e.push({ id: 'campo-certFim', txt: 'O fim do certificado tem de ser igual ou depois do início.', vivo: true })
+  else if (d.certIni && d.certFim < d.certIni) e.push({ id: 'campo-certFim', txt: 'O fim do certificado tem de ser igual ou depois do início.', vivo: true })
   if (!cert) e.push({ id: 'campo-certFicheiro', txt: 'Junte o ficheiro do certificado de presença.' })
   if (!d.transporte) e.push({ id: 'campo-transporte', txt: 'Escolha o transporte.' })
   // each expense needs its receipt and a date inside the trip; changing the trip dates later re-checks them

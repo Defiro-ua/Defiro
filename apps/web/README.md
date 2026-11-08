@@ -1,7 +1,7 @@
 # Defiro
 
 Protótipo navegável da aplicação **defiro** (pedidos e workflows da Câmara Municipal de Aveiro), feito a partir da
-página «Opção 1 · Protótipo único» do canvas *defiro · mockups da aplicação*: os ecrãs do MVP com os mesmos dados
+página «Opção 1 · Protótipo único» do canvas _defiro · mockups da aplicação_: os ecrãs do MVP com os mesmos dados
 partilhados, de modo que o que uma pessoa faz chega à seguinte.
 
 React 19 + Vite + TypeScript, Tailwind CSS 4 (plugin `@tailwindcss/vite`) e React Router. Os dados são fictícios e
@@ -19,17 +19,17 @@ Outros comandos: `npm run build` (verifica os tipos e gera `dist/`), `npm run pr
 
 ## Ecrãs
 
-| Rota | Ecrã |
-| --- | --- |
-| `/` | E01 Entrar (escolher a conta da demonstração) |
-| `/caixa-de-tarefas` | E02 Caixa de tarefas e «Os meus pedidos» |
-| `/novo-pedido` | E03 Novo pedido |
-| `/novo-pedido/:workflow` | E04 Formulário do pedido, passo a passo |
-| `/pedidos/:id` | E08 Rever pedido · E10 Validação final · ver um pedido (`?ver=1`) |
-| `/pedidos/:id/corrigir` | E07 Corrigir pedido devolvido (abre no resumo) |
-| `/workflows` | E12 Workflows (Sofia) |
-| `/workflows/:id` | E12b Ver o workflow completo |
-| `/workflows/criar` | E13 Criar workflow, passo a passo · E14 Campos do formulário |
+| Rota                     | Ecrã                                                              |
+| ------------------------ | ----------------------------------------------------------------- |
+| `/`                      | E01 Entrar (escolher a conta da demonstração)                     |
+| `/caixa-de-tarefas`      | E02 Caixa de tarefas e «Os meus pedidos»                          |
+| `/novo-pedido`           | E03 Novo pedido                                                   |
+| `/novo-pedido/:workflow` | E04 Formulário do pedido, passo a passo                           |
+| `/pedidos/:id`           | E08 Rever pedido · E10 Validação final · ver um pedido (`?ver=1`) |
+| `/pedidos/:id/corrigir`  | E07 Corrigir pedido devolvido (abre no resumo)                    |
+| `/workflows`             | E12 Workflows (Sofia)                                             |
+| `/workflows/:id`         | E12b Ver o workflow completo                                      |
+| `/workflows/criar`       | E13 Criar workflow, passo a passo · E14 Campos do formulário      |
 
 ## Percurso sugerido
 
@@ -65,5 +65,5 @@ parar animações, ler em voz alta e estrutura da página. As escolhas (e o tema
   formulário) e a estrutura dos ecrãs em `layout/`.
 - `src/pages/`: um ficheiro por ecrã.
 - `src/lib/`: utilitários (acessibilidade, PDF, foco, estilos dos campos).
-- `src/index.css`: tema do Tailwind com os tokens do design system *defiro*, o tema da Câmara de Aveiro e as paletas e
+- `src/index.css`: tema do Tailwind com os tokens do design system _defiro_, o tema da Câmara de Aveiro e as paletas e
   regras do menu de acessibilidade.

@@ -53,7 +53,12 @@ export type ProfileId = 'visao' | 'daltonismo' | 'dislexia' | 'epilepsia' | 'tec
 
 /** Ready-made combinations of settings */
 export const profiles: Array<{ id: ProfileId; name: string; description: string; settings: Partial<A11ySettings> }> = [
-  { id: 'visao', name: 'Visão reduzida', description: 'Texto a 150%, contraste claro e ligações realçadas', settings: { texto: '1.5', cor: 'contraste', links: true } },
+  {
+    id: 'visao',
+    name: 'Visão reduzida',
+    description: 'Texto a 150%, contraste claro e ligações realçadas',
+    settings: { texto: '1.5', cor: 'contraste', links: true },
+  },
   { id: 'daltonismo', name: 'Daltonismo', description: 'Cores para daltonismo vermelho-verde', settings: { cor: 'vermelho-verde' } },
   { id: 'dislexia', name: 'Dislexia', description: 'Letra Lexend, mais espaço entre letras e linhas', settings: { fonte: 'dislexia', esp: '2', lh: '2' } },
   { id: 'epilepsia', name: 'Epilepsia e convulsões', description: 'Sem animações e com cores menos intensas', settings: { pausa: true, sat: 'baixa' } },

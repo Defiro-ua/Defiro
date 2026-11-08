@@ -5,19 +5,7 @@ import { Chip } from '../components/Chip'
 import { ArrowHint, DateInput, FieldError, FileDrop, NoteFrom, Optional, Req, StepError, StepHeading, WizardFooter } from '../components/form'
 import { Icon } from '../components/Icon'
 import { WizardLayout } from '../components/layout/WizardLayout'
-import {
-  dateFromText,
-  dateLimits,
-  dateMessage,
-  fmtDate,
-  fmtDateTime,
-  maskDate,
-  maskTime,
-  now,
-  textOf,
-  timeMessage,
-  timeOk,
-} from '../domain/dates'
+import { dateFromText, dateLimits, dateMessage, fmtDate, fmtDateTime, maskDate, maskTime, now, textOf, timeMessage, timeOk } from '../domain/dates'
 import { personas, withRole } from '../domain/people'
 import { allowance, dateConflict, eur, expensesSum, maskIban, maskNif, parseNumber, tripDays, validateTrip, type FormError } from '../domain/trip'
 import type { Expense, FileRef, FormField, PersonaId, Request, TripData, Workflow } from '../domain/types'
@@ -118,13 +106,13 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
   const [ndErr, setNdErr] = useState<ExpenseErrorCode>({})
   const [ndPending, setNdPending] = useState(false)
 
-
   const setD = (patch: Partial<TripData>) => setForm((f) => ({ ...f, d: { ...f.d, ...patch } }))
   const setVal = (k: string, v: string) => setForm((f) => ({ ...f, val: { ...f.val, [k]: v } }))
   const lim = dateLimits(d)
 
   // dates are typed as dd/mm/aaaa (and hh:mm); the ISO value only exists once the text is a real date
-  const withTime = (k: string) => k === 'partida' || k === 'regresso' || (k.startsWith('g-') && genericFields.find((c) => 'g-' + c.id === k)?.tipo === 'Data e hora')
+  const withTime = (k: string) =>
+    k === 'partida' || k === 'regresso' || (k.startsWith('g-') && genericFields.find((c) => 'g-' + c.id === k)?.tipo === 'Data e hora')
   const isoOf = (k: string, t: DateText) => {
     const day = dateFromText(t.d)
     if (!day) return ''
@@ -167,25 +155,64 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
         continue
       }
       if (!v) {
-        if (c.obrig) errors.push({ id: fid, txt: (c.tipo === 'Escolha única' || c.tipo === 'Sim ou não' ? 'Escolha uma opção em «' : 'Preencha «') + c.rot + '».' })
+        if (c.obrig)
+          errors.push({ id: fid, txt: (c.tipo === 'Escolha única' || c.tipo === 'Sim ou não' ? 'Escolha uma opção em «' : 'Preencha «') + c.rot + '».' })
         continue
       }
-      if (c.tipo === 'Número' && !/^-?\d+([.,]\d+)?$/.test(v.replace(/\s/g, ''))) errors.push({ id: fid, txt: `«${c.rot}» só aceita algarismos, por exemplo 12 ou 3,5.`, vivo: true })
+      if (c.tipo === 'Número' && !/^-?\d+([.,]\d+)?$/.test(v.replace(/\s/g, '')))
+        errors.push({ id: fid, txt: `«${c.rot}» só aceita algarismos, por exemplo 12 ou 3,5.`, vivo: true })
       if (c.tipo === 'Data' && (v < L0.min || v > L0.max)) errors.push({ id: fid, txt: `A data em «${c.rot}» não é possível.`, vivo: true })
       if (c.tipo === 'Data e hora' && (v < L0.minDT || v > L0.maxDT)) errors.push({ id: fid, txt: `A data em «${c.rot}» não é possível.`, vivo: true })
     }
-    if (genericFields.some((c) => c.tipo === 'Ficheiros' && c.obrig) && !anexos.length) errors.push({ id: 'campo-anexos', txt: 'Junte pelo menos um ficheiro.' })
+    if (genericFields.some((c) => c.tipo === 'Ficheiros' && c.obrig) && !anexos.length)
+      errors.push({ id: 'campo-anexos', txt: 'Junte pelo menos um ficheiro.' })
   }
 
   // the form is a sequence of steps; each groups a few related questions
-  const S = (k: string, nome: string, q: string, ajuda: string, ids: string[] = [], nk: string[] = [], opc?: boolean): StepDef => ({ k, nome, q, ajuda, ids, nk, opc })
+  const S = (k: string, nome: string, q: string, ajuda: string, ids: string[] = [], nk: string[] = [], opc?: boolean): StepDef => ({
+    k,
+    nome,
+    q,
+    ajuda,
+    ids,
+    nk,
+    opc,
+  })
   const filesRequired = !ac && genericFields.some((c) => c.tipo === 'Ficheiros' && c.obrig)
   let steps: StepDef[] = ac
     ? [
-        S('dados', 'Os seus dados', 'Confirme os seus dados', 'Usamos o NIF e o IBAN para fazer o reembolso. Vêm do seu último pedido.', ['campo-nif', 'campo-iban'], ['nif', 'iban']),
-        S('deslocacao', 'Deslocação', 'Para onde foi e porquê?', 'Indique o motivo e o destino da deslocação em serviço.', ['campo-motivo', 'campo-destino', 'campo-desc'], ['motivo', 'destino', 'desc']),
-        S('datas', 'Datas', 'Quando foi a deslocação?', 'As ajudas de custo diárias são calculadas a partir destas datas.', ['campo-partida', 'campo-regresso'], ['partida', 'regresso']),
-        S('cert', 'Certificado de presença', 'Junte o certificado de presença', 'Copie as datas que aparecem no certificado e junte o ficheiro.', ['campo-certIni', 'campo-certFim', 'campo-certFicheiro'], ['cert']),
+        S(
+          'dados',
+          'Os seus dados',
+          'Confirme os seus dados',
+          'Usamos o NIF e o IBAN para fazer o reembolso. Vêm do seu último pedido.',
+          ['campo-nif', 'campo-iban'],
+          ['nif', 'iban'],
+        ),
+        S(
+          'deslocacao',
+          'Deslocação',
+          'Para onde foi e porquê?',
+          'Indique o motivo e o destino da deslocação em serviço.',
+          ['campo-motivo', 'campo-destino', 'campo-desc'],
+          ['motivo', 'destino', 'desc'],
+        ),
+        S(
+          'datas',
+          'Datas',
+          'Quando foi a deslocação?',
+          'As ajudas de custo diárias são calculadas a partir destas datas.',
+          ['campo-partida', 'campo-regresso'],
+          ['partida', 'regresso'],
+        ),
+        S(
+          'cert',
+          'Certificado de presença',
+          'Junte o certificado de presença',
+          'Copie as datas que aparecem no certificado e junte o ficheiro.',
+          ['campo-certIni', 'campo-certFim', 'campo-certFicheiro'],
+          ['cert'],
+        ),
         S('transporte', 'Transporte', 'Como se deslocou?', 'Escolha uma opção.', ['campo-transporte'], ['transporte']),
         S(
           'despesas',
@@ -196,7 +223,15 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
           ['despesas'],
           true,
         ),
-        S('anexos', 'Outros documentos', 'Quer juntar outros documentos?', 'Por exemplo a convocatória ou o programa da formação. Se não tiver, continue.', ['campo-anexos'], ['anexos'], true),
+        S(
+          'anexos',
+          'Outros documentos',
+          'Quer juntar outros documentos?',
+          'Por exemplo a convocatória ou o programa da formação. Se não tiver, continue.',
+          ['campo-anexos'],
+          ['anexos'],
+          true,
+        ),
       ]
     : [S('dados', 'Os seus dados', 'Confirme os seus dados', 'Entram no pedido automaticamente.')]
         .concat(
@@ -206,7 +241,17 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
         )
         .concat(
           genericFields.some((c) => c.tipo === 'Ficheiros')
-            ? [S('anexos', 'Ficheiros', 'Junte os ficheiros do pedido', filesRequired ? 'Pelo menos um ficheiro.' : 'Se não tiver, continue.', ['campo-anexos'], ['anexos'], !filesRequired)]
+            ? [
+                S(
+                  'anexos',
+                  'Ficheiros',
+                  'Junte os ficheiros do pedido',
+                  filesRequired ? 'Pelo menos um ficheiro.' : 'Se não tiver, continue.',
+                  ['campo-anexos'],
+                  ['anexos'],
+                  !filesRequired,
+                ),
+              ]
             : [],
         )
   steps = steps.concat([
@@ -254,7 +299,11 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
       focusSoon('passo-erro')
       return
     }
-    const all = ([] as FileRef[]).concat(cert ? [cert] : [], desp.map((x) => x.comp).filter((x): x is FileRef => !!x), anexos)
+    const all = ([] as FileRef[]).concat(
+      cert ? [cert] : [],
+      desp.map((x) => x.comp).filter((x): x is FileRef => !!x),
+      anexos,
+    )
     const data = { d: { ...d }, desp: desp.map((x) => ({ ...x, comp: x.comp ? { nome: x.comp.nome, kb: x.comp.kb } : null })), anexos: all, val }
     if (ped) reenviar(ped.id, data)
     else submeter(wf.id, data)
@@ -295,7 +344,15 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
   else if (stepErrors.length) stepError = stepErrors.length === 1 ? errorText : `Para continuar, corrija os ${stepErrors.length} campos assinalados.`
 
   const last = current === 'rever'
-  const nextText = last ? (correcting ? 'Reenviar pedido' : 'Submeter pedido') : fromReview ? 'Guardar e voltar à revisão' : keys[idx + 1] === 'rever' ? 'Rever o pedido' : 'Continuar'
+  const nextText = last
+    ? correcting
+      ? 'Reenviar pedido'
+      : 'Submeter pedido'
+    : fromReview
+      ? 'Guardar e voltar à revisão'
+      : keys[idx + 1] === 'rever'
+        ? 'Rever o pedido'
+        : 'Continuar'
 
   // ——— the new expense being filled in
   const ndTexts = {
@@ -366,9 +423,28 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
     ? []
     : ac
       ? [
-          { s: byKey.dados, rows: [{ rot: 'NIF', v: or(d.nif) }, { rot: 'IBAN', v: or(d.iban) }] },
-          { s: byKey.deslocacao, rows: [{ rot: 'Motivo', v: or(d.motivo) }, { rot: 'Destino', v: or(d.destino) }, { rot: 'Descrição', v: or(d.desc) }] },
-          { s: byKey.datas, rows: [{ rot: 'Partida', v: d.partida ? fmtDateTime(d.partida) : '—' }, { rot: 'Regresso', v: d.regresso ? fmtDateTime(d.regresso) : '—' }] },
+          {
+            s: byKey.dados,
+            rows: [
+              { rot: 'NIF', v: or(d.nif) },
+              { rot: 'IBAN', v: or(d.iban) },
+            ],
+          },
+          {
+            s: byKey.deslocacao,
+            rows: [
+              { rot: 'Motivo', v: or(d.motivo) },
+              { rot: 'Destino', v: or(d.destino) },
+              { rot: 'Descrição', v: or(d.desc) },
+            ],
+          },
+          {
+            s: byKey.datas,
+            rows: [
+              { rot: 'Partida', v: d.partida ? fmtDateTime(d.partida) : '—' },
+              { rot: 'Regresso', v: d.regresso ? fmtDateTime(d.regresso) : '—' },
+            ],
+          },
           {
             s: byKey.cert,
             rows: [
@@ -380,7 +456,10 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
           {
             s: byKey.despesas,
             rows: desp.length
-              ? desp.map((x) => ({ rot: x.tipo + (x.desc ? ' · ' + x.desc : ''), v: `${fmtDate(x.data)} · ${eur(x.valor)} · ${x.comp ? x.comp.nome : 'sem comprovativo'}` }))
+              ? desp.map((x) => ({
+                  rot: x.tipo + (x.desc ? ' · ' + x.desc : ''),
+                  v: `${fmtDate(x.data)} · ${eur(x.valor)} · ${x.comp ? x.comp.nome : 'sem comprovativo'}`,
+                }))
               : [{ rot: 'Despesas', v: 'Sem despesas.' }],
           },
           { s: byKey.anexos, rows: anexos.length ? anexos.map((a) => ({ rot: 'Ficheiro', v: a.nome })) : [{ rot: 'Ficheiros', v: 'Nenhum.' }] },
@@ -401,10 +480,17 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
               .filter((c) => c.tipo !== 'Ficheiros')
               .map((c) => {
                 const v = val[c.id]
-                return { s: byKey['g-' + c.id], rows: [{ rot: c.rot, v: !v ? '—' : c.tipo === 'Data' ? fmtDate(v) : c.tipo === 'Data e hora' ? fmtDateTime(v) : String(v) }] }
+                return {
+                  s: byKey['g-' + c.id],
+                  rows: [{ rot: c.rot, v: !v ? '—' : c.tipo === 'Data' ? fmtDate(v) : c.tipo === 'Data e hora' ? fmtDateTime(v) : String(v) }],
+                }
               }),
           )
-          .concat(byKey.anexos ? [{ s: byKey.anexos, rows: anexos.length ? anexos.map((a) => ({ rot: 'Ficheiro', v: a.nome })) : [{ rot: 'Ficheiros', v: 'Nenhum.' }] }] : [])
+          .concat(
+            byKey.anexos
+              ? [{ s: byKey.anexos, rows: anexos.length ? anexos.map((a) => ({ rot: 'Ficheiro', v: a.nome })) : [{ rot: 'Ficheiros', v: 'Nenhum.' }] }]
+              : [],
+          )
 
   const datesOk = !errors.some((x) => x.id === 'campo-partida' || x.id === 'campo-regresso')
   const despSum = expensesSum(desp)
@@ -562,7 +648,10 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
                     onChange={(e) => setD({ [k]: k === 'nif' ? maskNif(e.target.value) : maskIban(e.target.value) })}
                     aria-invalid={f.wrong || undefined}
                     aria-describedby={f.desc}
-                    className={inputClass(f.wrong, k === 'nif' ? 'max-w-[220px] tracking-[0.04em] tabular-nums' : 'max-w-[460px] tracking-[0.03em] uppercase tabular-nums')}
+                    className={inputClass(
+                      f.wrong,
+                      k === 'nif' ? 'max-w-[220px] tracking-[0.04em] tabular-nums' : 'max-w-[460px] tracking-[0.03em] uppercase tabular-nums',
+                    )}
                   />
                   {f.error && <FieldError id={'erro-' + k}>{f.error}</FieldError>}
                   {notes(k)}
@@ -721,7 +810,11 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
     )
   } else if (current === 'despesas') {
     const f = fld('despesas')
-    const ndF = (k: 'data' | 'valor' | 'comp', help?: boolean) => ({ wrong: !!ndE[k], error: ndE[k], desc: describedBy(help && 'ajuda-nd-' + k, ndE[k] && 'nd-erro-' + k) })
+    const ndF = (k: 'data' | 'valor' | 'comp', help?: boolean) => ({
+      wrong: !!ndE[k],
+      error: ndE[k],
+      desc: describedBy(help && 'ajuda-nd-' + k, ndE[k] && 'nd-erro-' + k),
+    })
     const nf = { data: ndF('data', true), valor: ndF('valor', true), comp: ndF('comp') }
     body = (
       <div id="campo-despesas" tabIndex={-1} className="flex flex-col gap-4 outline-none">
@@ -829,7 +922,14 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
                 <label htmlFor="nd-desc" className="text-[14px] font-semibold">
                   Descrição <Optional />
                 </label>
-                <input id="nd-desc" type="text" placeholder="Ex.: Aveiro – Lisboa" value={nd.desc} onChange={(e) => setNd((x) => ({ ...x, desc: e.target.value }))} className={inputClass()} />
+                <input
+                  id="nd-desc"
+                  type="text"
+                  placeholder="Ex.: Aveiro – Lisboa"
+                  value={nd.desc}
+                  onChange={(e) => setNd((x) => ({ ...x, desc: e.target.value }))}
+                  className={inputClass()}
+                />
               </div>
               <div className="flex flex-[1_1_220px] flex-col gap-1.5">
                 <label htmlFor="nd-data" className="text-[14px] font-semibold">
@@ -1174,7 +1274,11 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
               aria-labelledby={'rv-' + s.k}
               className={cx(
                 'flex flex-col gap-3 rounded-md bg-panel px-5 py-4.5',
-                errs.length ? 'border-2 border-error' : sectionNotes.length ? 'border border-line-strong shadow-[inset_4px_0_0_var(--color-warning)]' : 'border border-line',
+                errs.length
+                  ? 'border-2 border-error'
+                  : sectionNotes.length
+                    ? 'border border-line-strong shadow-[inset_4px_0_0_var(--color-warning)]'
+                    : 'border border-line',
               )}
             >
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -1255,7 +1359,13 @@ function RequestForm({ persona, wf, ped }: { persona: PersonaId; wf: Workflow; p
         onKeyDown={(e) => enterMovesOn(e, next)}
         className="mt-2 flex w-full max-w-form flex-col gap-7"
       >
-        <StepHeading kicker={correcting ? 'Correção do pedido' : `Passo ${idx + 1} de ${steps.length}`} name={PA.nome} optional={PA.opc} question={PA.q} help={PA.ajuda} />
+        <StepHeading
+          kicker={correcting ? 'Correção do pedido' : `Passo ${idx + 1} de ${steps.length}`}
+          name={PA.nome}
+          optional={PA.opc}
+          question={PA.q}
+          help={PA.ajuda}
+        />
         {stepError && <StepError>{stepError}</StepError>}
         {body}
         <WizardFooter

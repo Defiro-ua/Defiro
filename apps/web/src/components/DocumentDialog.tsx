@@ -71,9 +71,7 @@ export function DocumentDialog({ doc, open, onClose }: Props) {
               {doc.linhas.map(([label, value]) => (
                 <div key={label} className="flex flex-wrap gap-x-4 gap-y-0.5 border-t border-line py-2.25">
                   <dt className="flex-[0_0_200px] text-label-sm leading-5 text-ink-3">{label}</dt>
-                  <dd className="m-0 flex-[1_1_220px] text-[15px] leading-[22px] font-semibold tabular-nums [overflow-wrap:anywhere]">
-                    {value}
-                  </dd>
+                  <dd className="m-0 flex-[1_1_220px] text-[15px] leading-[22px] font-semibold tabular-nums [overflow-wrap:anywhere]">{value}</dd>
                 </div>
               ))}
             </dl>

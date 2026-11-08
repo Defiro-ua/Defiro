@@ -51,7 +51,10 @@ function AccountMenu({ me }: { me: Persona }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls="painel-conta"
-        className={cx('flex min-h-12 cursor-pointer items-center gap-2.5 rounded-pill border-0 py-0 pr-3.5 pl-1 text-left text-ink', open ? 'bg-soft' : 'bg-transparent hover:bg-soft-hover')}
+        className={cx(
+          'flex min-h-12 cursor-pointer items-center gap-2.5 rounded-pill border-0 py-0 pr-3.5 pl-1 text-left text-ink',
+          open ? 'bg-soft' : 'bg-transparent hover:bg-soft-hover',
+        )}
       >
         <span aria-hidden="true" className="grid size-9.5 place-items-center rounded-full bg-brand text-[13px] font-extrabold text-on-brand">
           {me.ini}
@@ -121,7 +124,11 @@ function AccountMenu({ me }: { me: Persona }) {
                     type="button"
                     aria-pressed={on}
                     onClick={() => update({ tema: t.id })}
-                    className={cx(rowBase, 'box-border min-h-14', on ? 'bg-soft shadow-[inset_0_0_0_1.5px_var(--color-line-strong)]' : 'bg-transparent hover:bg-soft-hover')}
+                    className={cx(
+                      rowBase,
+                      'box-border min-h-14',
+                      on ? 'bg-soft shadow-[inset_0_0_0_1.5px_var(--color-line-strong)]' : 'bg-transparent hover:bg-soft-hover',
+                    )}
                   >
                     <span aria-hidden="true" className="inline-flex shrink-0">
                       <span className="size-4.5 rounded-full shadow-[0_0_0_2px_var(--color-bg)]" style={{ background: t.c1 }} />

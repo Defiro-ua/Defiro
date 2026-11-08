@@ -1,14 +1,5 @@
 import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react'
-import {
-  canSpeak,
-  countActive,
-  defaultA11y,
-  isProfileOn,
-  profiles,
-  speak,
-  type A11ySettings,
-  type ProfileId,
-} from '../../lib/a11y'
+import { canSpeak, countActive, defaultA11y, isProfileOn, profiles, speak, type A11ySettings, type ProfileId } from '../../lib/a11y'
 import { useA11y } from '../../lib/a11yContext'
 import { cx } from '../../lib/cx'
 import { useFeedback } from '../../state/feedbackContext'
@@ -34,7 +25,13 @@ type Adjustment = {
 /** Each tile cycles through its values; the first one is "off". */
 const adjustments: Adjustment[] = [
   { key: 'cor', label: 'Contraste +', icon: 'contrast', values: ['padrao', 'contraste', 'escuro'], texts: ['Desligado', 'Claro', 'Escuro'] },
-  { key: 'cor', label: 'Daltonismo', icon: 'palette', values: ['padrao', 'vermelho-verde', 'azul-amarelo'], texts: ['Desligado', 'Vermelho-verde', 'Azul-amarelo'] },
+  {
+    key: 'cor',
+    label: 'Daltonismo',
+    icon: 'palette',
+    values: ['padrao', 'vermelho-verde', 'azul-amarelo'],
+    texts: ['Desligado', 'Vermelho-verde', 'Azul-amarelo'],
+  },
   { key: 'sat', label: 'Saturação', icon: 'droplet', values: ['', 'baixa', 'alta', 'cinza'], texts: ['Normal', 'Baixa', 'Alta', 'Sem cor'] },
   { key: 'texto', label: 'Texto maior', icon: 'textSize', values: ['1', '1.25', '1.5', '2'], texts: ['100%', '125%', '150%', '200%'] },
   { key: 'esp', label: 'Espaço entre letras', icon: 'letterSpacing', values: ['0', '1', '2', '3'], texts: ['Normal', 'Leve', 'Médio', 'Amplo'] },
@@ -160,9 +157,7 @@ export function A11yMenu() {
           </div>
 
           <div className="flex flex-col gap-4 px-5 pt-4 pb-5">
-            <p className="text-label-sm leading-4.75 text-ink-2">
-              As escolhas ficam guardadas neste navegador e valem nos outros ecrãs.
-            </p>
+            <p className="text-label-sm leading-4.75 text-ink-2">As escolhas ficam guardadas neste navegador e valem nos outros ecrãs.</p>
 
             <div className="flex flex-col gap-2">
               <button
@@ -228,10 +223,7 @@ export function A11yMenu() {
                       {adjustment.values.length > 2 && (
                         <span aria-hidden="true" className="mt-auto flex min-h-1.5 gap-0.75">
                           {adjustment.values.slice(1).map((_, i) => (
-                            <span
-                              key={i}
-                              className={cx('h-1.5 w-3.5 rounded-xs', i < index ? 'bg-orange' : 'border-emph border-line-strong')}
-                            />
+                            <span key={i} className={cx('h-1.5 w-3.5 rounded-xs', i < index ? 'bg-orange' : 'border-emph border-line-strong')} />
                           ))}
                         </span>
                       )}
