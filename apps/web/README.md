@@ -15,7 +15,29 @@ npm install
 npm run dev
 ```
 
-Outros comandos: `npm run build` (verifica os tipos e gera `dist/`), `npm run preview` e `npm run lint`.
+Precisa do Node indicado em `.nvmrc`. O `.npmrc` não corre scripts de instalação e recusa pacotes publicados há
+menos de 7 dias.
+
+## Comandos
+
+| Comando                 | O que faz                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| `npm run dev`           | Servidor de desenvolvimento, com recarregamento automático                      |
+| `npm run build`         | Verifica os tipos e gera `dist/`                                                |
+| `npm run preview`       | Serve o `dist/` gerado                                                          |
+| `npm run check`         | As verificações do CI (`Commit (web)`): formatação, lint, tipos, testes e build |
+| `npm run format:check`  | Verifica a formatação (Prettier)                                                |
+| `npm run format`        | Formata todos os ficheiros                                                      |
+| `npm run lint`          | oxlint; falha também com avisos                                                 |
+| `npm run typecheck`     | Verifica os tipos (`tsc -b`)                                                    |
+| `npm run test:coverage` | Testes (Vitest) com cobertura em `coverage/` e relatório JUnit em `reports/`    |
+| `npm test`              | Só os testes, sem cobertura                                                     |
+
+## Testes
+
+Os testes ficam ao lado do código que testam (`trip.ts` → `trip.test.ts`) e correm com Vitest em jsdom, com React
+Testing Library para os componentes. Os testes que dependem da data de hoje fixam o relógio com
+`vi.useFakeTimers()` e `vi.setSystemTime(...)`.
 
 ## Ecrãs
 
