@@ -1,6 +1,10 @@
-Story: UC__ · <!-- branch named after the story, e.g. UC18-reject-reasons -->
+Story: UC__ <!-- branch named after the story, e.g. UC18-reject-reasons -->
 
 ## What and why
+
+## How to see it working
+<!-- Steps a reviewer can follow locally, e.g. sign in as Ana and open «Novo pedido».
+     A screenshot for a UI change. "No visible change" is a fine answer. -->
 
 ## Definition of Done
 - [ ] Tests were written first; a fixed defect starts with a test that reproduced it
@@ -12,3 +16,5 @@ dependency and workflow checks.
 
 ## For the reviewer
 Read the tests first, and ask what would make them fail.
+
+Look closely at: <!-- where the risk is: a tricky rule, a migration, a security check -->
