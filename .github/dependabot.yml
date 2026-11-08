@@ -18,3 +18,25 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+
+  - package-ecosystem: npm
+    directory: /apps/web
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+
+  # The web app's Dockerfile. A new Node major changes .nvmrc, the Dockerfile and CI together,
+  # so it is done by hand.
+  - package-ecosystem: docker
+    directory: /apps/web
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
