@@ -41,7 +41,7 @@ That's it: the server answers at <http://localhost:8080/actuator/health>.
 |---|---|---|---|
 | JDK | 21 | `java -version` | [Eclipse Temurin](https://adoptium.net/) |
 | Docker | running | `docker info` | [Docker Desktop](https://www.docker.com/products/docker-desktop/) |
-| Node.js *(web app only)* | 22 | `node --version` | [nodejs.org](https://nodejs.org/) |
+| Node.js *(web app only)* | 26 | `node --version` | [nodejs.org](https://nodejs.org/) |
 
 You don't need to install Maven: the repository includes the Maven wrapper (`./mvnw`, or `mvnw.cmd` in a Windows terminal).
 
