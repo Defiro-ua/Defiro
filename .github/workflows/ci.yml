@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   commit-server:
-    name: Commit · server
+    name: Commit (server)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
