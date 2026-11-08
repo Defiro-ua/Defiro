@@ -67,9 +67,18 @@ sudo apt install openjdk-21-jdk docker.io
 
 ## Run it locally
 
-The quick start is at the top of this README. This section covers the IDE and sign-in.
+The quick start is at the top of this README. This section covers the IDE, the web app and sign-in.
 
 **In IntelliJ IDEA**, open the folder, set the project SDK to 21 (**File → Project Structure**), and run `DefiroApplication`. To skip the compose step, run `TestDefiroApplication` (in `apps/server/src/test`) instead: it starts its own throwaway Postgres.
+
+### Web app
+
+```bash
+docker compose -f deploy/compose.yaml up -d --build web          # http://localhost:3000
+docker compose -f deploy/compose.yaml --profile dev up web-dev   # live reload at http://localhost:5173
+```
+
+Or, with Node installed, `npm install` and `npm run dev` in `apps/web`. See `apps/web/README.md`.
 
 ### Sign-in
 
@@ -94,7 +103,7 @@ The server accepts tokens from any OpenID Connect provider (Microsoft Entra ID, 
 | `packages/spec` | Specification model, plain Java |
 | `packages/plugin-sdk` | The interface plugins implement, plain Java |
 | `plugins/` | Built-in plugins, loaded at runtime from the Plugin Registry |
-| `deploy/compose.yaml` | Local Postgres |
+| `deploy/compose.yaml` | Local Postgres and the web app |
 
 ---
 

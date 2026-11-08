@@ -7,5 +7,29 @@ services:
       POSTGRES_PASSWORD: defiro
     ports: ["5432:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
+
+  # The web app, built and served by nginx. Port 3000, so it doesn't clash with the server on 8080.
+  web:
+    build: ../apps/web
+    image: defiro-web
+    ports: ["${WEB_PORT:-3000}:80"]
+    restart: unless-stopped
+
+  # The web app with live reload, without installing Node: docker compose -f deploy/compose.yaml --profile dev up web-dev
+  web-dev:
+    profiles: [dev]
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm ci --no-audit --no-fund && npm run dev -- --host 0.0.0.0"
+    ports: ["${WEB_DEV_PORT:-5173}:5173"]
+    volumes:
+      - ../apps/web:/app
+      # node_modules stays in the container, apart from the host's
+      - web-node-modules:/app/node_modules
+    environment:
+      # Mounted folders on Windows and macOS need polling for Vite to notice changes
+      CHOKIDAR_USEPOLLING: "true"
+
 volumes:
   pgdata:
+  web-node-modules:
