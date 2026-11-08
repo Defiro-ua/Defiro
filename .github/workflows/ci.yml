@@ -59,6 +59,62 @@ jobs:
           path: '**/target/surefire-reports/'
           if-no-files-found: warn
 
+  commit-web:
+    name: Commit (web)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: apps/web/.nvmrc
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      # .npmrc refuses install scripts and packages published less than 7 days ago
+      - name: Install
+        run: npm ci
+
+      - name: Verify package signatures
+        run: npm audit signatures
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Check types
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm run test:coverage
+
+      - name: Build
+        run: npm run build
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-web
+          path: apps/web/coverage/lcov.info
+          if-no-files-found: error
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-reports-web
+          path: apps/web/reports/junit.xml
+          if-no-files-found: warn
+
   # Not in any job's needs: Dependency review doesn't run on pushes to main, and a job that
   # needs a skipped job is skipped too. Both are required checks on their own.
   workflow-lint:
@@ -110,7 +166,7 @@ jobs:
 
   acceptance:
     name: Acceptance
-    needs: [commit-server]
+    needs: [commit-server, commit-web]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -149,7 +205,7 @@ jobs:
 
   quality-gate:
     name: Quality gate
-    needs: [commit-server, acceptance]
+    needs: [commit-server, commit-web, acceptance]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
