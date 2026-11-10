@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   commit-server:
-    name: Commit · server
+    name: Commit (server)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -60,7 +60,7 @@ jobs:
           if-no-files-found: warn
 
   commit-web:
-    name: Commit · web
+    name: Commit (web)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:

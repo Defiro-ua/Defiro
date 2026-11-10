@@ -1,4 +1,4 @@
-# Defiro · web
+# Defiro
 
 A aplicação web da **defiro** (pedidos e workflows da Câmara Municipal de Aveiro): React 19 + Vite + TypeScript,
 Tailwind CSS 4 (plugin `@tailwindcss/vite`) e React Router.
@@ -23,7 +23,7 @@ menos de 7 dias.
 | `npm run dev`           | Servidor de desenvolvimento, com recarregamento automático                      |
 | `npm run build`         | Verifica os tipos e gera `dist/`                                                |
 | `npm run preview`       | Serve o `dist/` gerado                                                          |
-| `npm run check`         | As verificações do CI (`Commit · web`): formatação, lint, tipos, testes e build |
+| `npm run check`         | As verificações do CI (`Commit (web)`): formatação, lint, tipos, testes e build |
 | `npm run format:check`  | Verifica a formatação (Prettier)                                                |
 | `npm run format`        | Formata todos os ficheiros                                                      |
 | `npm run lint`          | oxlint; falha também com avisos                                                 |

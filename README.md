@@ -134,8 +134,8 @@ Every pull request and every push to `main` runs the CI workflow. Each stage sta
 
 | Stage | Check | What it does |
 |---|---|---|
-| Commit | **Commit · server** | Checks formatting, builds, and runs the unit tests (`*Test`). Needs no Docker. |
-| | **Commit · web** | Verifies the npm packages' signatures, checks formatting, lint and types, runs the Vitest tests and builds the web app. |
+| Commit | **Commit (server)** | Checks formatting, builds, and runs the unit tests (`*Test`). Needs no Docker. |
+| | **Commit (web)** | Verifies the npm packages' signatures, checks formatting, lint and types, runs the Vitest tests and builds the web app. |
 | | **Workflow lint** | Tests the CI scripts and checks every workflow with zizmor. |
 | | **Dependency review** | Fails a pull request that adds a dependency with a known vulnerability. |
 | Acceptance | **Acceptance** | Runs the integration tests (`*IT`) against PostgreSQL in Testcontainers. |
