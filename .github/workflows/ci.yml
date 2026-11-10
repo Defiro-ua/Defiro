@@ -144,7 +144,10 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-reports-it
-          path: '**/target/failsafe-reports/'
+          # Cucumber's report shows each scenario, even when the run failed.
+          path: |
+            **/target/failsafe-reports/
+            **/target/cucumber/
           if-no-files-found: warn
 
   quality-gate:
