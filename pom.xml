@@ -32,7 +32,7 @@
         <jackson-bom.version>3.1.8</jackson-bom.version>
         <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
-        <spotless-maven-plugin.version>3.10.4</spotless-maven-plugin.version>
+        <spotless-maven-plugin.version>3.11.0</spotless-maven-plugin.version>
         <palantir-java-format.version>2.103.0</palantir-java-format.version>
 
         <!-- Unit tests (*Test, Surefire) need only a JDK; integration tests (*IT, Failsafe) need Docker.
