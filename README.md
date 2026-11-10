@@ -41,7 +41,7 @@ That's it: the server answers at <http://localhost:8080/actuator/health>.
 |---|---|---|---|
 | JDK | 21 | `java -version` | [Eclipse Temurin](https://adoptium.net/) |
 | Docker | running | `docker info` | [Docker Desktop](https://www.docker.com/products/docker-desktop/) |
-| Node.js *(web app only)* | 22 | `node --version` | [nodejs.org](https://nodejs.org/) |
+| Node.js *(web app only)* | 26 | `node --version` | [nodejs.org](https://nodejs.org/) |
 
 You don't need to install Maven: the repository includes the Maven wrapper (`./mvnw`, or `mvnw.cmd` in a Windows terminal).
 
@@ -67,9 +67,18 @@ sudo apt install openjdk-21-jdk docker.io
 
 ## Run it locally
 
-The quick start is at the top of this README. This section covers the IDE and sign-in.
+The quick start is at the top of this README. This section covers the IDE, the web app and sign-in.
 
 **In IntelliJ IDEA**, open the folder, set the project SDK to 21 (**File → Project Structure**), and run `DefiroApplication`. To skip the compose step, run `TestDefiroApplication` (in `apps/server/src/test`) instead: it starts its own throwaway Postgres.
+
+### Web app
+
+```bash
+docker compose -f deploy/compose.yaml up -d --build web          # http://localhost:3000
+docker compose -f deploy/compose.yaml --profile dev up web-dev   # live reload at http://localhost:5173
+```
+
+Or, with Node installed, `npm install` and `npm run dev` in `apps/web`. See `apps/web/README.md`.
 
 ### Sign-in
 
@@ -94,7 +103,7 @@ The server accepts tokens from any OpenID Connect provider (Microsoft Entra ID, 
 | `packages/spec` | Specification model, plain Java |
 | `packages/plugin-sdk` | The interface plugins implement, plain Java |
 | `plugins/` | Built-in plugins, loaded at runtime from the Plugin Registry |
-| `deploy/compose.yaml` | Local Postgres |
+| `deploy/compose.yaml` | Local Postgres and the web app |
 
 ---
 
@@ -125,11 +134,21 @@ Every pull request and every push to `main` runs the CI workflow. Each stage sta
 
 | Stage | Check | What it does |
 |---|---|---|
-| Commit | **Commit · server** | Checks formatting, builds, and runs the unit tests (`*Test`). Needs no Docker. |
+| Commit | **Commit (server)** | Checks formatting, builds, and runs the unit tests (`*Test`). Needs no Docker. |
+| | **Commit (web)** | Verifies the npm packages' signatures, checks formatting, lint and types, runs the Vitest tests and builds the web app. |
 | | **Workflow lint** | Tests the CI scripts and checks every workflow with zizmor. |
 | | **Dependency review** | Fails a pull request that adds a dependency with a known vulnerability. |
 | Acceptance | **Acceptance** | Runs the integration tests (`*IT`) against PostgreSQL in Testcontainers. |
-| Quality | **Quality gate** | Analyses the code in SonarQube Cloud, with the coverage of both test stages. |
+| Quality | **Quality gate** | Analyses both apps in SonarQube Cloud, with the coverage of the server's two test stages and of the web app's tests. |
+
+Run the same checks before you push:
+
+| App | Same checks as CI | Fix formatting |
+|---|---|---|
+| Server | `./mvnw verify` | `./mvnw spotless:apply` |
+| Web | `npm run check` in `apps/web` | `npm run format` in `apps/web` |
+
+The web app uses the Node major in `apps/web/.nvmrc`. Its `.npmrc` refuses install scripts and packages published less than 7 days ago, which gives the registry time to pull a compromised release. To install a younger package on purpose, say why in the pull request and run `npm install <package>@<version> --min-release-age=0`.
 
 The quality gate has two parts:
 
@@ -154,6 +173,8 @@ Pull requests from forks can't read the SonarQube token, so the gate fails for t
 ## Editor setup
 
 IntelliJ offers to install **palantir-java-format**, so *Reformat Code* gives the same result as CI, and **SonarQube for IDE**, which then offers to bind to the SonarQube Cloud project and flags the same issues while you code.
+
+VS Code recommends **Prettier**, **EditorConfig** and **SonarQube for IDE** when you open the folder.
 
 > [!TIP]
 > The repository stores text files with LF line endings. On Windows, if the formatting check reports files you didn't change, your working copy still has CRLF line endings. Commit or stash your work, then refresh it once:
