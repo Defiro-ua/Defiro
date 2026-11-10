@@ -1,0 +1,12 @@
+node_modules
+dist
+npm-debug.log*
+.DS_Store
+.vscode
+.idea
+Dockerfile
+.dockerignore
+pom.xml
+coverage
+reports
+target
