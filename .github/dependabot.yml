@@ -1,7 +1,13 @@
 version: 2
+
+# Version updates go to develop, the integration branch, like any feature: they reach main with the
+# next release. Dependabot reads this file only from main, so changes to it must be merged there.
+# Security updates ignore target-branch and always go to main; merge main back into develop after
+# each one, as with a hotfix.
 updates:
   - package-ecosystem: maven
     directory: /
+    target-branch: develop
     schedule:
       interval: weekly
     # Version updates wait 7 days after a release, so a compromised release is usually
@@ -14,6 +20,7 @@ updates:
 
   - package-ecosystem: github-actions
     directory: /
+    target-branch: develop
     schedule:
       interval: weekly
     cooldown:
@@ -21,6 +28,7 @@ updates:
 
   - package-ecosystem: npm
     directory: /apps/web
+    target-branch: develop
     schedule:
       interval: weekly
     cooldown:
@@ -33,6 +41,7 @@ updates:
   # so it is done by hand.
   - package-ecosystem: docker
     directory: /apps/web
+    target-branch: develop
     schedule:
       interval: weekly
     cooldown:
