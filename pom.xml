@@ -27,12 +27,12 @@
 
     <properties>
         <java.version>21</java.version>
-        <pf4j.version>3.16.0</pf4j.version>
+        <pf4j.version>3.16.1</pf4j.version>
         <!-- CVE-2026-110879 is fixed in 3.1.8; Boot 4.1.2 ships 3.1.7. Remove once Boot manages >= 3.1.8. -->
         <jackson-bom.version>3.1.8</jackson-bom.version>
         <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
-        <spotless-maven-plugin.version>3.10.4</spotless-maven-plugin.version>
+        <spotless-maven-plugin.version>3.11.0</spotless-maven-plugin.version>
         <palantir-java-format.version>2.103.0</palantir-java-format.version>
 
         <!-- Unit tests (*Test, Surefire) need only a JDK; integration tests (*IT, Failsafe) need Docker.
