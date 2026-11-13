@@ -37,7 +37,7 @@ class SecurityConfiguration {
         if (clientRegistrations.getIfAvailable() != null) {
             // Browsers sign in through the provider's page; the API still answers 401, since the
             // web app calls it with fetch, which cannot follow a redirect to that page.
-            http.oauth2Login(withDefaults())
+            http.oauth2Login(login -> login.successHandler(Landing.onInbox()))
                     .exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(
                             new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                             PathPatternRequestMatcher.pathPattern("/api/**")));
