@@ -5,9 +5,10 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 /**
  * Who is signed in, as Entra ID says in the id token. defiro keeps none of it: it is read again
- * at every sign-in. The menu lists the web app's side menu items this person may see.
+ * at every sign-in. The groups are the object ids of the Entra ID groups this person belongs to.
+ * The menu lists the web app's side menu items this person may see.
  */
-record Profile(String name, String unit, String jobTitle, String manager, List<String> menu) {
+record Profile(String name, String unit, String jobTitle, String manager, List<String> groups, List<String> menu) {
 
     // The value of the app role in Entra ID; its display name is «Workflow Manager».
     static final String WORKFLOW_MANAGER = "WorkflowManager";
@@ -19,11 +20,13 @@ record Profile(String name, String unit, String jobTitle, String manager, List<S
     static Profile of(OidcUser user) {
         List<String> roles = user.getClaimAsStringList("roles");
         boolean workflowManager = roles != null && roles.contains(WORKFLOW_MANAGER);
+        List<String> groups = user.getClaimAsStringList("groups");
         return new Profile(
                 user.getClaimAsString("name"),
                 user.getClaimAsString("department"),
                 user.getClaimAsString("jobTitle"),
                 user.getClaimAsString("manager"),
+                groups == null ? List.of() : groups,
                 workflowManager ? WORKFLOW_MANAGERS : EVERYONE);
     }
 }

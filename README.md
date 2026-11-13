@@ -82,7 +82,25 @@ Or, with Node installed, `npm install` and `npm run dev` in `apps/web`. See `app
 
 ### Sign-in
 
-The server accepts tokens from any OpenID Connect provider (Microsoft Entra ID, Keycloak, Auth0 and others). Point it at one with environment variables:
+The server works with any OpenID Connect provider (Microsoft Entra ID, Keycloak, Auth0 and others). Point it at one with environment variables. Never put their values in the repository.
+
+**Signing in from the web app.** People choose «Entrar» and sign in on the provider's page. Register defiro in the provider as a web app with a client secret, then set:
+
+| Variable | Example for Microsoft Entra ID |
+|---|---|
+| `SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_ENTRA_ISSUER_URI` | `https://login.microsoftonline.com/<tenant-id>/v2.0` |
+| `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_ENTRA_CLIENT_ID` | the app registration's Application (client) ID |
+| `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_ENTRA_CLIENT_SECRET` | a client secret of the app registration |
+| `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_ENTRA_SCOPE` | `openid,profile` |
+
+In the app registration:
+
+- **Redirect URI** (platform *Web*): the web app's address followed by `/login/oauth2/code/entra`, such as `http://localhost:5173/login/oauth2/code/entra` for `npm run dev`.
+- **App role** `WorkflowManager` (display name *Workflow Manager*), assigned to the people who model workflows.
+- **Token configuration**: add the groups claim (security groups), so the id token carries the object ids of the person's groups.
+- defiro also reads the claims `department`, `jobTitle` and `manager`. Entra ID does not send them by default. Whether IT adds them to the token or defiro reads them from Microsoft Graph is still an open question (see `uc01-authenticate.feature`).
+
+**Calling the API with a bearer token.** For clients other than the web app:
 
 | Variable | Example for Microsoft Entra ID |
 |---|---|
@@ -90,7 +108,7 @@ The server accepts tokens from any OpenID Connect provider (Microsoft Entra ID, 
 | `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES` | the server's app registration, such as `api://defiro` |
 
 > [!NOTE]
-> Without an issuer, nobody can sign in: only `/actuator/health` answers, and every other request is refused.
+> Without either, nobody can sign in: only `/actuator/health` answers, and every other request is refused.
 
 ---
 

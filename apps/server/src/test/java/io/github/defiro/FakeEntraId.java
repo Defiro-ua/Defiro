@@ -32,7 +32,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
  * Plays Microsoft Entra ID in tests: an OpenID Connect provider on a local port, so no test calls
  * Microsoft. It has a directory of {@link Account}s; whoever is chosen with {@link #signInAs} is
  * signed in at its authorization endpoint, with no sign-in screen. Its id tokens carry the claims
- * defiro reads from Entra ID: name, unit ({@code department}), job title, manager and app roles.
+ * defiro reads from Entra ID: name, unit ({@code department}), job title, manager, app roles and
+ * the object ids of the person's groups.
  */
 public final class FakeEntraId {
 
@@ -48,8 +49,20 @@ public final class FakeEntraId {
     private final Map<String, Grant> grants = new ConcurrentHashMap<>();
     private volatile String signingIn;
 
-    /** A person in the organization's directory. {@code appRole} is null for people with none. */
-    public record Account(String name, String unit, String jobTitle, String manager, String appRole) {
+    /**
+     * A person in the organization's directory. {@code appRole} is null for people with none;
+     * {@code groups} are the names of the groups they belong to.
+     */
+    public record Account(
+            String name, String unit, String jobTitle, String manager, String appRole, List<String> groups) {
+
+        public Account {
+            groups = List.copyOf(groups);
+        }
+
+        public Account(String name, String unit, String jobTitle, String manager, String appRole) {
+            this(name, unit, jobTitle, manager, appRole, List.of());
+        }
 
         String id() {
             return UUID.nameUUIDFromBytes(name.getBytes(StandardCharsets.UTF_8)).toString();
@@ -109,6 +122,12 @@ public final class FakeEntraId {
             throw new IllegalArgumentException("No account in the fake Entra ID for " + name);
         }
         return account;
+    }
+
+    /** The object id Entra ID gives the group with this name; tokens carry it, not the name. */
+    public static String groupId(String name) {
+        return UUID.nameUUIDFromBytes(("group:" + name).getBytes(StandardCharsets.UTF_8))
+                .toString();
     }
 
     /** The person the next authorization request signs in. */
@@ -189,6 +208,12 @@ public final class FakeEntraId {
                 .claim("jobTitle", account.jobTitle())
                 .claim("manager", account.manager())
                 .claim("roles", account.appRole() == null ? List.of() : List.of(account.appRole()));
+        // Like Entra ID, the claim is left out for someone in no group.
+        if (!account.groups().isEmpty()) {
+            claims.claim(
+                    "groups",
+                    account.groups().stream().map(FakeEntraId::groupId).toList());
+        }
         try {
             SignedJWT jwt = new SignedJWT(
                     new JWSHeader.Builder(JWSAlgorithm.RS256)

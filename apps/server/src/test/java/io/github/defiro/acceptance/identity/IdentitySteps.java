@@ -98,7 +98,20 @@ public class IdentitySteps {
     @Given("IT has since changed her job title in Entra ID to {string}")
     public void itChangedHerJobTitle(String jobTitle) {
         Account account = entraId.account(person);
-        entraId.save(new Account(account.name(), account.unit(), jobTitle, account.manager(), account.appRole()));
+        entraId.save(new Account(
+                account.name(), account.unit(), jobTitle, account.manager(), account.appRole(), account.groups()));
+    }
+
+    @Given("in Entra ID {person} belongs to the groups {string} and {string}")
+    public void belongsToTheGroups(String name, String group, String otherGroup) {
+        Account account = entraId.account(name);
+        entraId.save(new Account(
+                account.name(),
+                account.unit(),
+                account.jobTitle(),
+                account.manager(),
+                account.appRole(),
+                List.of(group, otherGroup)));
     }
 
     @When("she signs out")
@@ -130,6 +143,14 @@ public class IdentitySteps {
         Response me = profile();
         assertThat(me.statusCode()).isEqualTo(200);
         assertThat(me.jsonPath().getString("jobTitle")).isEqualTo(jobTitle);
+    }
+
+    @Then("defiro knows her groups as {string} and {string}")
+    public void defiroKnowsHerGroupsAs(String group, String otherGroup) {
+        Response me = profile();
+        assertThat(me.statusCode()).isEqualTo(200);
+        assertThat(me.jsonPath().getList("groups", String.class))
+                .containsExactlyInAnyOrder(FakeEntraId.groupId(group), FakeEntraId.groupId(otherGroup));
     }
 
     @Then("defiro has stored no password")

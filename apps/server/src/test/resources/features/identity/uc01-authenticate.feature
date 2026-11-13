@@ -37,6 +37,17 @@ Feature: Authenticate (SSO Entra ID)
       When Ana Ferreira signs in
       Then defiro has stored no password
 
+  Rule: The groups the user belongs to are read from Entra ID
+    # Departments and units are groups that already exist in Entra ID (UC05, UC28).
+    # Entra ID puts each group's object id in the token, not its name.
+    # open question: above 200 groups Entra ID leaves the groups out of the token (overage),
+    #                and defiro would have to read them from Microsoft Graph.
+
+    Scenario: The groups come from Entra ID
+      Given in Entra ID Ana Ferreira belongs to the groups "Divisão de Obras Municipais" and "Finanças"
+      When Ana Ferreira signs in
+      Then defiro knows her groups as "Divisão de Obras Municipais" and "Finanças"
+
   Rule: After signing in, the user lands on their task inbox
     # open question: the inbox is UC27. Until it exists, signing in lands on the inbox's route
     #                in the web app, «/caixa-de-tarefas», as a placeholder.
