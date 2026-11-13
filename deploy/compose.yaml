@@ -14,6 +14,10 @@ services:
     image: defiro-web
     ports: ["${WEB_PORT:-3000}:80"]
     restart: unless-stopped
+    environment:
+      DEFIRO_SERVER: ${DEFIRO_SERVER:-http://host.docker.internal:8080}
+    # The server runs on the host (./mvnw spring-boot:run); on Linux this name needs to be added
+    extra_hosts: ["host.docker.internal:host-gateway"]
 
   # The web app with live reload, without installing Node: docker compose -f deploy/compose.yaml --profile dev up web-dev
   web-dev:
@@ -29,6 +33,9 @@ services:
     environment:
       # Mounted folders on Windows and macOS need polling for Vite to notice changes
       CHOKIDAR_USEPOLLING: "true"
+      # The server, on the host
+      DEFIRO_SERVER: ${DEFIRO_SERVER:-http://host.docker.internal:8080}
+    extra_hosts: ["host.docker.internal:host-gateway"]
 
 volumes:
   pgdata:

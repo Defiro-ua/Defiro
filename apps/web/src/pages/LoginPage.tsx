@@ -44,6 +44,8 @@ export function LoginPage() {
 
   return (
     <div className="bg-login relative flex min-h-screen flex-col text-ink">
+      {/* Outside the header and main: they each stack on their own, and the notice goes above both */}
+      <Flash notice={notice} onClose={closeNotice} />
       <header className="relative z-3 px-4 pt-6 sm:px-16">
         <a className="skip-link" href="#botao-acessibilidade">
           Ir para o menu de acessibilidade
@@ -58,7 +60,6 @@ export function LoginPage() {
       </header>
 
       <main id="conteudo" tabIndex={-1} className="relative z-1 flex flex-1 flex-col outline-none">
-        <Flash notice={notice} onClose={closeNotice} />
         <section aria-labelledby="titulo-inicio" className="relative box-border flex min-h-[560px] items-center px-4 pt-18 pb-24 sm:px-16">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden overflow-hidden md:block">
             <span className="bg-brand-bar absolute top-12 right-[8%] h-75 w-29 rounded-[26px]" />
