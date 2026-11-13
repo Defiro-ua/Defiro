@@ -36,6 +36,8 @@ public class IdentitySteps {
             "Caixa de tarefas", "inbox",
             "Workflows", "workflows");
     private static final Map<String, String> NOTICES = Map.of("Sessão terminada", "sessao-terminada");
+    // Entra ID puts an app role's value in the token, not its display name. Values have no spaces.
+    private static final Map<String, String> APP_ROLE_VALUES = Map.of("Workflow Manager", "WorkflowManager");
 
     private final FakeEntraId entraId = FakeEntraId.instance();
     private final Map<String, String> cookies = new HashMap<>();
@@ -59,7 +61,7 @@ public class IdentitySteps {
                         row.get("unit"),
                         row.get("job title"),
                         row.get("manager"),
-                        blankToNull(row.get("app role"))))
+                        appRoleValue(row.get("app role"))))
                 .toList());
     }
 
@@ -241,7 +243,12 @@ public class IdentitySteps {
         return response;
     }
 
-    private static String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value;
+    private static String appRoleValue(String displayName) {
+        if (displayName == null || displayName.isBlank()) {
+            return null;
+        }
+        String value = APP_ROLE_VALUES.get(displayName);
+        assertThat(value).as("app role value for " + displayName).isNotNull();
+        return value;
     }
 }
