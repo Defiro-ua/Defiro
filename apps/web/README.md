@@ -1,12 +1,10 @@
 # Defiro
 
-Protótipo navegável da aplicação **defiro** (pedidos e workflows da Câmara Municipal de Aveiro), feito a partir da
-página «Opção 1 · Protótipo único» do canvas *defiro · mockups da aplicação*: os ecrãs do MVP com os mesmos dados
-partilhados, de modo que o que uma pessoa faz chega à seguinte.
+A aplicação web da **defiro** (pedidos e workflows da Câmara Municipal de Aveiro): React 19 + Vite + TypeScript,
+Tailwind CSS 4 (plugin `@tailwindcss/vite`) e React Router.
 
-React 19 + Vite + TypeScript, Tailwind CSS 4 (plugin `@tailwindcss/vite`) e React Router. Os dados são fictícios e
-ficam neste separador do navegador (`sessionStorage`): recarregar a página mantém a demonstração, um separador novo
-começa do início.
+Por agora é só a base: o tema com os tokens do design system _defiro_ (`src/index.css`), as ferramentas e as
+verificações do CI. Os ecrãs chegam uma user story de cada vez, cada um com os seus testes.
 
 ## Correr
 
@@ -15,55 +13,52 @@ npm install
 npm run dev
 ```
 
-Outros comandos: `npm run build` (verifica os tipos e gera `dist/`), `npm run preview` e `npm run lint`.
+Precisa do Node indicado em `.nvmrc`. O `.npmrc` não corre scripts de instalação e recusa pacotes publicados há
+menos de 7 dias.
 
-## Ecrãs
+## Comandos
 
-| Rota | Ecrã |
-| --- | --- |
-| `/` | E01 Entrar (escolher a conta da demonstração) |
-| `/caixa-de-tarefas` | E02 Caixa de tarefas e «Os meus pedidos» |
-| `/novo-pedido` | E03 Novo pedido |
-| `/novo-pedido/:workflow` | E04 Formulário do pedido, passo a passo |
-| `/pedidos/:id` | E08 Rever pedido · E10 Validação final · ver um pedido (`?ver=1`) |
-| `/pedidos/:id/corrigir` | E07 Corrigir pedido devolvido (abre no resumo) |
-| `/workflows` | E12 Workflows (Sofia) |
-| `/workflows/:id` | E12b Ver o workflow completo |
-| `/workflows/criar` | E13 Criar workflow, passo a passo · E14 Campos do formulário |
+| Comando                 | O que faz                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| `npm run dev`           | Servidor de desenvolvimento, com recarregamento automático                      |
+| `npm run build`         | Verifica os tipos e gera `dist/`                                                |
+| `npm run preview`       | Serve o `dist/` gerado                                                          |
+| `npm run check`         | As verificações do CI (`Commit (web)`): formatação, lint, tipos, testes e build |
+| `npm run format:check`  | Verifica a formatação (Prettier)                                                |
+| `npm run format`        | Formata todos os ficheiros                                                      |
+| `npm run lint`          | oxlint; falha também com avisos                                                 |
+| `npm run typecheck`     | Verifica os tipos (`tsc -b`)                                                    |
+| `npm run test:coverage` | Testes (Vitest) com cobertura em `coverage/` e relatório JUnit em `reports/`    |
+| `npm test`              | Só os testes, sem cobertura                                                     |
 
-## Percurso sugerido
+## Testes
 
-1. Entrar como **Ana** → Novo pedido → Ajudas de custo → responder passo a passo → Submeter
-2. Ver como **Rui** → Rever o pedido novo → Nota num campo → Devolver para correção (um ou mais motivos; experimentar
-   Desfazer)
-3. Ver como **Ana** → Corrigir (abre no resumo, com as partes a corrigir assinaladas) → Reenviar
-4. Ver como **Rui** → Aprovar · Ver como **Carla** → Aprovar
-5. Ver como **Joana** → Validar e fechar → Ver documento → Transferir PDF
-6. Ver como **Ana** → Os meus pedidos → Documento
-7. Ver como **Sofia** → Workflows → abrir «Ajudas de custo» → Ver o workflow completo · Criar workflow (no menu):
-   nome → quem pede → cada passo do percurso (quem trata, prazo, motivos) → formulário, um campo de cada vez → rever →
-   a Ana passa a vê-lo em Novo pedido
+Os testes ficam ao lado do código que testam (`App.tsx` → `App.test.tsx`) e correm com Vitest em jsdom, com React
+Testing Library para os componentes. Os testes que dependem da data de hoje fixam o relógio com
+`vi.useFakeTimers()` e `vi.setSystemTime(...)`.
 
-Depois de cada ação aparece um pequeno aviso no topo do ecrã. Nos formulários, «Anterior» fica em baixo, junto de
-«Continuar», e «Sair» em cima, à direita.
+## Trazer um ecrã do protótipo
 
-**Menu da conta** (avatar): **Ver como** muda de pessoa · **Tema** escolhe as cores da defiro ou da Câmara Municipal de
-Aveiro · **Recomeçar a demonstração** volta aos pedidos e workflows do início · Terminar sessão.
+O protótipo navegável do MVP (os 7 ecrãs com dados fictícios) está no ramo temporário `prototype/frontend`. Não entra
+no `main` de uma vez: cada user story traz os ecrãs e o código de que precisa, com testes, num pull request seu.
 
-**Menu de acessibilidade:** o botão redondo no canto inferior esquerdo, em todos os ecrãs. Tem perfis (visão reduzida,
-daltonismo, dislexia, epilepsia, teclado) e ajustes: contraste claro e escuro, cores para daltonismo, saturação, texto
-maior, espaço entre letras, altura das linhas, realçar ligações, tipo de letra legível ou para dislexia, foco reforçado,
-parar animações, ler em voz alta e estrutura da página. As escolhas (e o tema) ficam guardadas neste navegador
-(`localStorage`); o alto contraste e o modo escuro têm prioridade sobre o tema.
+Ver o protótipo a correr:
 
-## Organização
+```bash
+git fetch origin
+git switch prototype/frontend
+cd apps/web && npm ci && npm run dev
+```
 
-- `src/domain/`: dados e regras do protótipo, sem React: pessoas e grupos, o workflow «Ajudas de custo», os pedidos
-  de exemplo, submeter, reenviar e decidir, validação do formulário e o desenho de workflows.
-- `src/state/`: os dados partilhados da demonstração (`DemoProvider`) e as confirmações curtas (`FeedbackProvider`).
-- `src/components/`: componentes reutilizáveis (botões, chips, aviso, documento em PDF, linha de progresso, campos de
-  formulário) e a estrutura dos ecrãs em `layout/`.
-- `src/pages/`: um ficheiro por ecrã.
-- `src/lib/`: utilitários (acessibilidade, PDF, foco, estilos dos campos).
-- `src/index.css`: tema do Tailwind com os tokens do design system *defiro*, o tema da Câmara de Aveiro e as paletas e
-  regras do menu de acessibilidade.
+Trazer ficheiros para o ramo da user story:
+
+```bash
+git switch -c UC18-reject-reasons origin/main
+git restore --source origin/prototype/frontend -- apps/web/src/pages/RequestPage.tsx apps/web/src/components/Chip.tsx
+```
+
+Os ficheiros do protótipo usam dados de demonstração; ao trazê-los, ligue-os ao servidor e escreva os testes. O
+SonarQube já assinalou alguns problemas neles (acessibilidade em `A11yMenu`, `Topbar` e `DesignerPage`, uma expressão
+regular e `NaN` em `trip.ts`), que têm de ser corrigidos quando forem trazidos.
+
+Nunca faça merge de `prototype/frontend` no `main`. O ramo é apagado quando todos os ecrãs tiverem sido trazidos.
