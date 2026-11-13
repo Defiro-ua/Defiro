@@ -6,3 +6,7 @@ npm-debug.log*
 .idea
 Dockerfile
 .dockerignore
+pom.xml
+coverage
+reports
+target
