@@ -1,10 +1,10 @@
 # Frontend da defiro: compila a app com Node e serve os ficheiros estáticos com nginx.
 
 # 1 · Compilar
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 # As dependências primeiro, para o Docker reaproveitar esta camada enquanto o package-lock.json não mudar
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 RUN npm ci --no-audit --no-fund
 COPY . .
 RUN npm run build
