@@ -197,7 +197,8 @@ public class IdentitySteps {
         assertThat(toProvider.statusCode())
                 .as("defiro sends the browser to Entra ID")
                 .isEqualTo(302);
-        Response fromProvider = given().redirects().follow(false).get(toProvider.header("Location"));
+        Response fromProvider =
+                given().urlEncodingEnabled(false).redirects().follow(false).get(toProvider.header("Location"));
         assertThat(fromProvider.statusCode())
                 .as("Entra ID sends the browser back")
                 .isEqualTo(302);
@@ -225,7 +226,8 @@ public class IdentitySteps {
     }
 
     private RequestSpecification app() {
-        return given().redirects().follow(false).cookies(cookies);
+        // Locations come already encoded, so they are sent as they are, like a browser does.
+        return given().urlEncodingEnabled(false).redirects().follow(false).cookies(cookies);
     }
 
     private Response remember(Response response) {
