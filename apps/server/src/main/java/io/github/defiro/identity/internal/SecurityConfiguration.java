@@ -38,13 +38,21 @@ class SecurityConfiguration {
         if (clientRegistrations.getIfAvailable() == null) {
             http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         } else {
-            // Browsers sign in through the provider's page; the API still answers 401, since the
-            // web app calls it with fetch, which cannot follow a redirect to that page.
-            http.oauth2Login(login -> login.successHandler(Landing.onInbox()))
-                    .exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(
-                            new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                            PathPatternRequestMatcher.pathPattern("/api/**")));
+            signInInTheBrowser(http);
         }
         return http.build();
+    }
+
+    // Browsers sign in through the provider's page; the API still answers 401, since the web app
+    // calls it with fetch, which cannot follow a redirect to that page.
+    // The session cookie goes with every request, so writes need the CSRF token. The web app reads
+    // it from the XSRF-TOKEN cookie and sends it back in the X-XSRF-TOKEN header.
+    private static void signInInTheBrowser(HttpSecurity http) {
+        http.oauth2Login(login -> login.successHandler(Landing.onInbox()))
+                .csrf(csrf -> csrf.spa())
+                .logout(logout -> logout.logoutSuccessUrl(Landing.SIGNED_OUT))
+                .exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(
+                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                        PathPatternRequestMatcher.pathPattern("/api/**")));
     }
 }
