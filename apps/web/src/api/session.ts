@@ -1,12 +1,15 @@
 /** Items of the side menu the server allows this person to see. */
 export type MenuItem = 'create-workflow' | 'new-request' | 'inbox' | 'workflows'
 
-/** Who is signed in, as the server read it from Entra ID (GET /api/me). */
+/**
+ * Who is signed in, as the server read it from Entra ID (GET /api/me). Name, unit, job title and
+ * manager are null when the token does not carry them.
+ */
 export type Profile = {
-  name: string
-  unit: string
-  jobTitle: string
-  manager: string
+  name: string | null
+  unit: string | null
+  jobTitle: string | null
+  manager: string | null
   menu: MenuItem[]
 }
 

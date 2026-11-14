@@ -4,8 +4,8 @@ import { cx } from '../../lib/cx'
 import { Icon } from '../Icon'
 
 /** «Sofia Almeida» → «SA»: the first letters of the first and last names */
-function initials(name: string) {
-  const words = name.trim().split(/\s+/).filter(Boolean)
+function initials(name: string | null) {
+  const words = (name ?? '').trim().split(/\s+/).filter(Boolean)
   const first = words[0]?.[0] ?? ''
   const last = words.length > 1 ? words[words.length - 1][0] : ''
   return (first + last).toUpperCase()

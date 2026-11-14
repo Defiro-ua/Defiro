@@ -1,10 +1,12 @@
 package io.github.defiro.identity.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import com.jayway.jsonpath.JsonPath;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -42,6 +44,21 @@ class ProfileControllerTest {
         assertThat((String) JsonPath.read(body, "$.unit")).isEqualTo("Divisão de Obras Municipais");
         assertThat((String) JsonPath.read(body, "$.jobTitle")).isEqualTo("Técnica Superior");
         assertThat((String) JsonPath.read(body, "$.manager")).isEqualTo("Rui Matos");
+    }
+
+    @Test
+    void aClientWithABearerTokenGetsTheProfileFromItsClaims() throws Exception {
+        MvcResult result = mvc.perform(get("/api/me")
+                        .with(jwt().jwt(token -> token.claim("name", "Sofia Almeida")
+                                .claim("jobTitle", "Gestora de workflows")
+                                .claim("roles", List.of("WorkflowManager")))))
+                .andReturn();
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+        String body = result.getResponse().getContentAsString();
+        assertThat((String) JsonPath.read(body, "$.name")).isEqualTo("Sofia Almeida");
+        assertThat((String) JsonPath.read(body, "$.jobTitle")).isEqualTo("Gestora de workflows");
+        assertThat((List<String>) JsonPath.read(body, "$.menu")).contains("workflows");
     }
 
     @Test
