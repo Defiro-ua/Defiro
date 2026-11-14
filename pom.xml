@@ -49,6 +49,7 @@
         <module>packages/spec</module>
         <module>packages/plugin-sdk</module>
         <module>apps/server</module>
+        <module>apps/web</module>
         <module>plugins</module>
     </modules>
 

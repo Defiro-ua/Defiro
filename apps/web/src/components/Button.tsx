@@ -14,9 +14,7 @@ const variants: Record<ButtonVariant, string> = {
   primary:
     'border-0 bg-brand text-on-brand hover:brightness-107 hover:text-on-brand ' +
     'aria-[current=page]:shadow-[0_0_0_3px_var(--color-bg),0_0_0_5px_var(--color-orange)]',
-  secondary:
-    'border-emph border-field bg-bg text-ink hover:bg-soft hover:text-ink ' +
-    'aria-[current=page]:border-orange aria-[current=page]:bg-accent-soft',
+  secondary: 'border-emph border-field bg-bg text-ink hover:bg-soft hover:text-ink ' + 'aria-[current=page]:border-orange aria-[current=page]:bg-accent-soft',
   danger: 'border-0 bg-error text-on-status hover:brightness-110 hover:text-on-status',
 }
 

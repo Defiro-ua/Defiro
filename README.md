@@ -41,7 +41,7 @@ That's it: the server answers at <http://localhost:8080/actuator/health>.
 |---|---|---|---|
 | JDK | 21 | `java -version` | [Eclipse Temurin](https://adoptium.net/) |
 | Docker | running | `docker info` | [Docker Desktop](https://www.docker.com/products/docker-desktop/) |
-| Node.js *(web app only)* | 22 | `node --version` | [nodejs.org](https://nodejs.org/) |
+| Node.js *(web app only)* | 26 | `node --version` | [nodejs.org](https://nodejs.org/) |
 
 You don't need to install Maven: the repository includes the Maven wrapper (`./mvnw`, or `mvnw.cmd` in a Windows terminal).
 
@@ -82,7 +82,25 @@ Or, with Node installed, `npm install` and `npm run dev` in `apps/web`. See `app
 
 ### Sign-in
 
-The server accepts tokens from any OpenID Connect provider (Microsoft Entra ID, Keycloak, Auth0 and others). Point it at one with environment variables:
+The server works with any OpenID Connect provider (Microsoft Entra ID, Keycloak, Auth0 and others). Point it at one with environment variables. Never put their values in the repository.
+
+**Signing in from the web app.** People choose «Entrar» and sign in on the provider's page. Register defiro in the provider as a web app with a client secret, then set:
+
+| Variable | Example for Microsoft Entra ID |
+|---|---|
+| `SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_ENTRA_ISSUER_URI` | `https://login.microsoftonline.com/<tenant-id>/v2.0` |
+| `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_ENTRA_CLIENT_ID` | the app registration's Application (client) ID |
+| `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_ENTRA_CLIENT_SECRET` | a client secret of the app registration |
+| `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_ENTRA_SCOPE` | `openid,profile` |
+
+In the app registration:
+
+- **Redirect URI** (platform *Web*): the web app's address followed by `/login/oauth2/code/entra`, such as `http://localhost:5173/login/oauth2/code/entra` for `npm run dev`.
+- **App role** `WorkflowManager` (display name *Workflow Manager*), assigned to the people who model workflows.
+- **Token configuration**: add the groups claim (security groups), so the id token carries the object ids of the person's groups.
+- defiro also reads the claims `department`, `jobTitle` and `manager`. Entra ID does not send them by default. Whether IT adds them to the token or defiro reads them from Microsoft Graph is still an open question (see `uc01-authenticate.feature`).
+
+**Calling the API with a bearer token.** For clients other than the web app:
 
 | Variable | Example for Microsoft Entra ID |
 |---|---|
@@ -90,7 +108,7 @@ The server accepts tokens from any OpenID Connect provider (Microsoft Entra ID, 
 | `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES` | the server's app registration, such as `api://defiro` |
 
 > [!NOTE]
-> Without an issuer, nobody can sign in: only `/actuator/health` answers, and every other request is refused.
+> Without either, nobody can sign in: only `/actuator/health` answers, and every other request is refused.
 
 ---
 
@@ -135,11 +153,21 @@ Every pull request and every push to `main` runs the CI workflow. Each stage sta
 
 | Stage | Check | What it does |
 |---|---|---|
-| Commit | **Commit · server** | Checks formatting, builds, and runs the unit tests (`*Test`). Needs no Docker. |
+| Commit | **Commit (server)** | Checks formatting, builds, and runs the unit tests (`*Test`). Needs no Docker. |
+| | **Commit (web)** | Verifies the npm packages' signatures, checks formatting, lint and types, runs the Vitest tests and builds the web app. |
 | | **Workflow lint** | Tests the CI scripts and checks every workflow with zizmor. |
 | | **Dependency review** | Fails a pull request that adds a dependency with a known vulnerability. |
 | Acceptance | **Acceptance** | Runs the integration tests (`*IT`) against PostgreSQL in Testcontainers. |
-| Quality | **Quality gate** | Analyses the code in SonarQube Cloud, with the coverage of both test stages. |
+| Quality | **Quality gate** | Analyses both apps in SonarQube Cloud, with the coverage of the server's two test stages and of the web app's tests. |
+
+Run the same checks before you push:
+
+| App | Same checks as CI | Fix formatting |
+|---|---|---|
+| Server | `./mvnw verify` | `./mvnw spotless:apply` |
+| Web | `npm run check` in `apps/web` | `npm run format` in `apps/web` |
+
+The web app uses the Node major in `apps/web/.nvmrc`. Its `.npmrc` refuses install scripts and packages published less than 7 days ago, which gives the registry time to pull a compromised release. To install a younger package on purpose, say why in the pull request and run `npm install <package>@<version> --min-release-age=0`.
 
 The quality gate has two parts:
 
@@ -164,6 +192,8 @@ Pull requests from forks can't read the SonarQube token, so the gate fails for t
 ## Editor setup
 
 IntelliJ offers to install **palantir-java-format**, so *Reformat Code* gives the same result as CI, and **SonarQube for IDE**, which then offers to bind to the SonarQube Cloud project and flags the same issues while you code.
+
+VS Code recommends **Prettier**, **EditorConfig** and **SonarQube for IDE** when you open the folder.
 
 > [!TIP]
 > The repository stores text files with LF line endings. On Windows, if the formatting check reports files you didn't change, your working copy still has CRLF line endings. Commit or stash your work, then refresh it once:

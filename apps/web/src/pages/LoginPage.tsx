@@ -1,13 +1,9 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { Button } from '../components/Button'
 import { Flash } from '../components/Flash'
-import { Icon } from '../components/Icon'
 import { Logo } from '../components/Logo'
-import { personaIds, personas } from '../domain/people'
-import { useFlash } from '../lib/useFlash'
+import { useAddressNotice } from '../lib/useAddressNotice'
 import { useFocusOnArrival } from '../lib/useFocusOnArrival'
-import { useNativeDialog } from '../lib/useNativeDialog'
-import { useDemo } from '../state/demoContext'
 
 const steps = [
   { n: '1', t: 'Desenhar', d: 'Desenhe o workflow: os passos, quem trata cada um e os dados de que cada passo precisa.' },
@@ -40,17 +36,16 @@ const footerColumns = [
   },
 ]
 
-/** E01 · Entrar (UC01): welcome screen; «Entrar» opens the choice of account of the demo */
+/** E01 · Entrar (UC01): welcome screen; «Entrar» opens the organization’s sign-in page (Entra ID) */
 export function LoginPage() {
-  const { entrar } = useDemo()
-  const [flash, closeFlash] = useFlash()
-  const [open, setOpen] = useState(false)
-  const { ref: dialogRef, onCancel, onClick } = useNativeDialog(open, () => setOpen(false))
+  const [notice, closeNotice] = useAddressNotice()
   const headingRef = useRef<HTMLHeadingElement>(null)
   useFocusOnArrival(headingRef)
 
   return (
     <div className="bg-login relative flex min-h-screen flex-col text-ink">
+      {/* Outside the header and main: they each stack on their own, and the notice goes above both */}
+      <Flash notice={notice} onClose={closeNotice} />
       <header className="relative z-3 px-4 pt-6 sm:px-16">
         <a className="skip-link" href="#botao-acessibilidade">
           Ir para o menu de acessibilidade
@@ -58,14 +53,13 @@ export function LoginPage() {
         <div className="box-border flex min-h-16 flex-wrap items-center gap-x-4.5 gap-y-2.5 rounded-pill border-emph border-line-strong bg-bg py-2 pr-2.5 pl-6 shadow-island">
           <Logo className="h-8" />
           <span aria-hidden="true" className="flex-[1_1_200px]" />
-          <Button icon="logIn" iconSize={20} onClick={() => setOpen(true)}>
+          <Button href="/oauth2/authorization/entra" icon="logIn" iconSize={20}>
             Entrar
           </Button>
         </div>
       </header>
 
       <main id="conteudo" tabIndex={-1} className="relative z-1 flex flex-1 flex-col outline-none">
-        <Flash notice={flash} onClose={closeFlash} />
         <section aria-labelledby="titulo-inicio" className="relative box-border flex min-h-[560px] items-center px-4 pt-18 pb-24 sm:px-16">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden overflow-hidden md:block">
             <span className="bg-brand-bar absolute top-12 right-[8%] h-75 w-29 rounded-[26px]" />
@@ -121,7 +115,14 @@ export function LoginPage() {
               />
             </svg>
             <span aria-hidden="true" className="absolute top-[25px] left-[calc(2%-11px)] hidden size-5.5 rounded-full bg-yellow md:block" />
-            <svg aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 28 28" className="absolute top-[22px] left-[calc(94.33%-6px)] hidden md:block">
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              width="28"
+              height="28"
+              viewBox="0 0 28 28"
+              className="absolute top-[22px] left-[calc(94.33%-6px)] hidden md:block"
+            >
               <path d="M4 3 L25 14 L4 25 Z" style={{ fill: 'var(--color-orange)' }} strokeLinejoin="round" />
             </svg>
             <ol className="relative m-0 grid list-none grid-cols-1 gap-y-10 p-0 md:grid-cols-3 md:gap-y-0">
@@ -182,63 +183,6 @@ export function LoginPage() {
           ))}
         </div>
       </footer>
-
-      <dialog
-        ref={dialogRef}
-        onCancel={onCancel}
-        onClick={onClick}
-        onClose={() => setOpen(false)}
-        aria-labelledby="contas-titulo"
-        aria-describedby="contas-intro"
-        className="w-[560px] font-sans"
-      >
-        <div className="box-border flex max-h-[calc(100vh-48px)] flex-col gap-4 overflow-auto rounded-menu border border-edge bg-bg p-7 text-ink">
-          <div className="flex flex-col gap-1.5">
-            <h2 id="contas-titulo" className="m-0 text-[22px] leading-[30px] font-extrabold tracking-heading">
-              Escolha a conta
-            </h2>
-            <span className="edge self-start rounded-sm bg-warning-soft px-2.5 py-0.5 text-caption font-semibold text-warning">Só na demonstração</span>
-          </div>
-          <p id="contas-intro" className="m-0 text-[15px] leading-[23px] text-ink-2">
-            Na aplicação real, aqui abre a página de início de sessão do fornecedor de identidade (IdP) da sua organização. Para a demonstração, escolha com quem
-            quer entrar.
-          </p>
-          <ul className="m-0 flex list-none flex-col gap-2 p-0">
-            {personaIds.map((id) => {
-              const p = personas[id]
-              return (
-                <li key={id}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOpen(false)
-                      entrar(id)
-                    }}
-                    className="choice-card flex min-h-16 w-full items-center gap-3.5 rounded-item border border-line-strong bg-panel px-3.5 py-2 text-left text-ink"
-                  >
-                    <span aria-hidden="true" className="grid size-10.5 shrink-0 place-items-center rounded-full bg-brand text-[14px] font-extrabold text-on-brand">
-                      {p.ini}
-                    </span>
-                    <span className="flex flex-1 flex-col leading-[1.35]">
-                      <span className="text-[16px] font-semibold">
-                        {p.nome}
-                        <span className="sr-only">,</span> <span className="font-normal text-ink-3">· {p.papel}</span>
-                      </span>
-                      <span className="text-label-sm leading-[1.35] text-ink-2">
-                        {p.funcao} · {p.desc}
-                      </span>
-                    </span>
-                    <Icon name="arrowRight" size={18} className="text-accent-ink" />
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-          <Button variant="secondary" className="self-end" onClick={() => setOpen(false)}>
-            Cancelar
-          </Button>
-        </div>
-      </dialog>
     </div>
   )
 }
